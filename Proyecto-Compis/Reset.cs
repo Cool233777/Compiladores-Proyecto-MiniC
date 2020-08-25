@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Proyecto_Compis
 {
-    class Reset
+   public class Reset
     {
         AnalizadorLex lexer;
         public void reset()
