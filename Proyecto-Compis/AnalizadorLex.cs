@@ -53,6 +53,70 @@ namespace Proyecto_Compis
         }      
 
         //Conteo de lineas
+
+
+        //Recibir tokens
+        public IEnumerable<PropiedadesDePalabras> Tokens(string texto)
+        {
+            if (compilar) throw new Exception("requiere compilar");
+            Match match = gex.Match(texto);
+            if (!match.Success) yield break;
+            int linea = 1, comienzo = 0, indice = 0;
+
+            while (match.Success)
+            {
+                if (match.Index > indice)
+                {
+                    string token = texto.Substring(indice, match.Index - indice);
+                    yield return new PropiedadesDePalabras("ERROR", token, indice, linea, (indice - comienzo) + 1);
+                    linea += contarLineas(indice, ref comienzo, token);
+                }
+
+                for (int i = 0; i < numeros.Length; i++)
+                {
+                    if (match.Groups[numeros[i]].Success)
+                    {
+                        string nombre = gex.GroupNameFromNumber(numeros[i]);
+                        yield return new PropiedadesDePalabras(nombre, match.Value, match.Index, linea, (match.Index - comienzo) + 1);
+                        break;
+
+                    }
+                }
+                linea += contarLineas(match.Index, ref comienzo, match.Value);
+                indice = match.Index + match.Length;
+                match = match.NextMatch();
+
+
+            }
+            if (texto.Length >indice)
+            {
+                yield return new PropiedadesDePalabras("ERROR", texto.Substring(indice), indice, linea, (indice - comienzo) + 1);
+            }
+            }
+
+        public void Compilar(RegexOptions opciones)
+        {
+            if (compilar)
+            {
+                try
+                {
+                    gex = new Regex(pattern.ToString(), opciones);
+                    numeros = new int[TNombres.Count];
+                    string[] obtenerNombre = gex.GetGroupNames();
+                    for (int i = 0, index = 0; i<obtenerNombre.Length; i++)
+                    {
+                        if (TNombres.Contains(obtenerNombre[i]))
+                        {
+                            numeros[index++] = gex.GroupNumberFromName(obtenerNombre[i]);
+
+                        }
+                    }
+                    compilar = false;
+
+                }
+                catch (Exception ex) { throw ex; }
+            }
+        }
         public int contarLineas(int indice, ref int lineaComienzo, string token)
         {
             int linea = 0;
@@ -64,8 +128,7 @@ namespace Proyecto_Compis
                 }
             return linea;
         }
-
-
+    }
 
     }
-}
+
