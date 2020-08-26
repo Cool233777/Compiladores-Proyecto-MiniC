@@ -9,19 +9,14 @@ namespace Proyecto_Compis
 {
     public class AnalizadorLex
     {
-        public Regex gex;
-        public StringBuilder pattern;
-        public List<string> TNombres;
-        public int[] numeros;
-        public bool compilar;
+        //cambiar nombres a mayus
+        public Regex REGEX;
+        public StringBuilder PATTERN;
+        public List<string> TNOMBRES= new List<string>();
+        public int[] NUMEROS;
+        public bool DEBUG;
 
-        public AnalizadorLex()
-        {
-            compilar = true;
-            TNombres = new List<string>();
-
-        }
-
+       
         //Método para agregar las reglas y reconocer los tokens
         public void NuevaReglaDeTokens(string patron_Nuevo, string token_Nombre, bool ignorar = false)
         {
@@ -35,46 +30,50 @@ namespace Proyecto_Compis
                 throw new ArgumentException(string.Format("El patrón {0} no es válido.", patron_Nuevo));
             }
 
-            if (pattern == null)
+            if (PATTERN == null)
             {
-                pattern = new StringBuilder(string.Format("(?<{0}>{1})", token_Nombre, patron_Nuevo));
+                PATTERN = new StringBuilder(string.Format("(?<{0}>{1})", token_Nombre, patron_Nuevo));
             }
             else
             {
-                pattern.Append(string.Format("|(?<{0}>{1})", token_Nombre, patron_Nuevo));
+                PATTERN.Append(string.Format("|(?<{0}>{1})", token_Nombre, patron_Nuevo));
             }
 
             if (!ignorar)
             {
-                TNombres.Add(token_Nombre);
+                TNOMBRES.Add(token_Nombre);
             }
 
-            compilar = true;
+            DEBUG = true;
         }
 
 
         //Recibir tokens
-        public IEnumerable<PropiedadesDePalabras> Tokens(string texto)
+        public IEnumerable<PropiedadesDePalabras> Tokens(string Texto_A_Compilar)
         {
-            if (compilar) throw new Exception("requiere compilar");
-            Match match = gex.Match(texto);
-            if (!match.Success) yield break;
-            int linea = 1, comienzo = 0, indice = 0;
+            Match match = REGEX.Match(Texto_A_Compilar);
+            if (!match.Success)
+            {
+                yield break;
+            }
+            var linea = 1;
+            var comienzo = 0;
+            var indice = 0;
 
             while (match.Success)
             {
                 if (match.Index > indice)
                 {
-                    string token = texto.Substring(indice, match.Index - indice);
-                    yield return new PropiedadesDePalabras("ERROR", token, indice, linea, (indice - comienzo) + 1);// se puede cambiar
+                    string token = Texto_A_Compilar.Substring(indice, match.Index - indice);
+                    yield return new PropiedadesDePalabras("ERROR", token, indice, linea, (indice - comienzo) + 1);
                     linea += contarLineas(indice, ref comienzo, token);
                 }
 
-                for (int i = 0; i < numeros.Length; i++)
+                for (int i = 0; i < NUMEROS.Length; i++)
                 {
-                    if (match.Groups[numeros[i]].Success)
+                    if (match.Groups[NUMEROS[i]].Success)
                     {
-                        string nombre = gex.GroupNameFromNumber(numeros[i]);
+                        string nombre = REGEX.GroupNameFromNumber(NUMEROS[i]);
                         yield return new PropiedadesDePalabras(nombre, match.Value, match.Index, linea, (match.Index - comienzo) + 1);
                         break;
 
@@ -86,29 +85,29 @@ namespace Proyecto_Compis
 
 
             }
-            if (texto.Length > indice)
+            if (Texto_A_Compilar.Length > indice)
             {
-                yield return new PropiedadesDePalabras("ERROR", texto.Substring(indice), indice, linea, (indice - comienzo) + 1);
+                yield return new PropiedadesDePalabras("ERROR", Texto_A_Compilar.Substring(indice), indice, linea, (indice - comienzo) + 1);
             }
         }
 
-        public void Compilar(RegexOptions opciones)
+        public void Debuggear(RegexOptions opciones)
         {
-            if (compilar)
+            if (DEBUG)
             {
                 try
                 {
-                    gex = new Regex(pattern.ToString(), opciones);
-                    numeros = new int[TNombres.Count];
-                    string[] obtenerNombre = gex.GetGroupNames();
+                    REGEX = new Regex(PATTERN.ToString(), opciones);
+                    NUMEROS = new int[TNOMBRES.Count];
+                    string[] obtenerNombre = REGEX.GetGroupNames();
                     for (int i = 0, index = 0; i < obtenerNombre.Length; i++)
                     {
-                        if (TNombres.Contains(obtenerNombre[i]))
+                        if (TNOMBRES.Contains(obtenerNombre[i]))
                         {
-                            numeros[index++] = gex.GroupNumberFromName(obtenerNombre[i]);
+                            NUMEROS[index++] = REGEX.GroupNumberFromName(obtenerNombre[i]);
                         }
                     }
-                    compilar = false;
+                    DEBUG = false;
 
                 }
                 catch (Exception ex) { throw ex; }

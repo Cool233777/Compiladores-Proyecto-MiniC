@@ -11,11 +11,11 @@ namespace Proyecto_Compis
         AnalizadorLex lexer;
         public void reset()
         {
-            lexer.gex = null;
-            lexer.pattern = null;
-            lexer.compilar = true;
-            lexer.TNombres.Clear();
-            lexer.numeros = null;
+            lexer.REGEX = null;
+            lexer.PATTERN = null;
+            lexer.DEBUG = true;
+            lexer.TNOMBRES.Clear();
+            lexer.NUMEROS = null;
         }
         
     }
