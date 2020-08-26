@@ -45,14 +45,12 @@ namespace Proyecto_Compis
             }
 
             if (!ignorar)
-            { 
-                TNombres.Add(token_Nombre); 
-            }          
+            {
+                TNombres.Add(token_Nombre);
+            }
 
             compilar = true;
-        }      
-
-        //Conteo de lineas
+        }
 
 
         //Recibir tokens
@@ -68,7 +66,7 @@ namespace Proyecto_Compis
                 if (match.Index > indice)
                 {
                     string token = texto.Substring(indice, match.Index - indice);
-                    yield return new PropiedadesDePalabras("ERROR", token, indice, linea, (indice - comienzo) + 1);
+                    yield return new PropiedadesDePalabras("ERROR", token, indice, linea, (indice - comienzo) + 1);// se puede cambiar
                     linea += contarLineas(indice, ref comienzo, token);
                 }
 
@@ -88,11 +86,11 @@ namespace Proyecto_Compis
 
 
             }
-            if (texto.Length >indice)
+            if (texto.Length > indice)
             {
                 yield return new PropiedadesDePalabras("ERROR", texto.Substring(indice), indice, linea, (indice - comienzo) + 1);
             }
-            }
+        }
 
         public void Compilar(RegexOptions opciones)
         {
@@ -103,12 +101,11 @@ namespace Proyecto_Compis
                     gex = new Regex(pattern.ToString(), opciones);
                     numeros = new int[TNombres.Count];
                     string[] obtenerNombre = gex.GetGroupNames();
-                    for (int i = 0, index = 0; i<obtenerNombre.Length; i++)
+                    for (int i = 0, index = 0; i < obtenerNombre.Length; i++)
                     {
                         if (TNombres.Contains(obtenerNombre[i]))
                         {
                             numeros[index++] = gex.GroupNumberFromName(obtenerNombre[i]);
-
                         }
                     }
                     compilar = false;
@@ -117,6 +114,8 @@ namespace Proyecto_Compis
                 catch (Exception ex) { throw ex; }
             }
         }
+
+        //Conteo de lineas
         public int contarLineas(int indice, ref int lineaComienzo, string token)
         {
             int linea = 0;
@@ -129,6 +128,5 @@ namespace Proyecto_Compis
             return linea;
         }
     }
-
-    }
+}
 
