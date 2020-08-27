@@ -16,6 +16,8 @@ namespace Proyecto_Compis
         public int[] NUMEROS;
         public bool DEBUG;
 
+        
+
        
         //Método para agregar las reglas y reconocer los tokens
         public void NuevaReglaDeTokens(string patron_Nuevo, string token_Nombre, bool ignorar = false)

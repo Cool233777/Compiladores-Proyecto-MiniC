@@ -15,15 +15,16 @@ namespace Proyecto_Compis
     public partial class Form1 : Form
     {
 
-        public List<string> Lista_Reservadas = new List<string>() { { "void" }, { "public" }, { "int" }, { "double" }, { "bool" }, { "string" }, { "const" }, { "if" }, { "null" }, { "if" }, { "else" }, { "return" }, { "New" }, { "Console" }, { "WriteLine" }, { "for" }, { "while" }, { "break" }, { "class" }, { "interface" }, { "foreach" }, { "NewArray" }, { "class" }, { "this" }, };
-        public AnalizadorLex Analizador_Lexico = new AnalizadorLex();
-        public List<PropiedadesDePalabras> Lista_Tokens = new List<PropiedadesDePalabras>();
-        public string Texto_A_Compilar;
-
         public Form1()
         {
             InitializeComponent();
         }
+
+        public List<string> Lista_Reservadas = new List<string>() { { "void" }, { "public" }, { "int" }, { "double" }, { "bool" }, { "string" }, { "const" }, { "if" }, { "null" }, { "if" }, { "else" }, { "return" }, { "New" }, { "Console" }, { "WriteLine" }, { "for" }, { "while" }, { "break" }, { "class" }, { "interface" }, { "foreach" }, { "NewArray" }, { "class" }, { "this" }, };
+        public AnalizadorLex Analizador_Lexico = new AnalizadorLex();//
+        public List<PropiedadesDePalabras> Lista_Tokens = new List<PropiedadesDePalabras>();//
+        public string Texto_A_Compilar;
+
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -40,26 +41,24 @@ namespace Proyecto_Compis
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Introduccir reglas para reconcoer los tokens           
-            Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+", "NUMERO");
-            Analizador_Lexico.NuevaReglaDeTokens(@"[\.=\+\-/*%]", "OPERADOR");
             Analizador_Lexico.NuevaReglaDeTokens(@"\s+", "ESPACIO", true);
-            Analizador_Lexico.NuevaReglaDeTokens("//[^\r\n]*", "COMENTARIO1");
-            Analizador_Lexico.NuevaReglaDeTokens("/[*].*?[*]/", "COMENTARIO2");//falta retornar error /*
-            Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z](\w){0,32}\b", "IDENTIFICADOR");
+            Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z](\w){0,24}\b", "IDENTIFICADOR");
             Analizador_Lexico.NuevaReglaDeTokens("\".*?\"", "CADENA");
-            Analizador_Lexico.NuevaReglaDeTokens(@"[\(\)\{\}\[\];,]", "DELIMITADOR");
             Analizador_Lexico.NuevaReglaDeTokens(@"'\\.'|'[^\\]'", "CARACTER");
-            Analizador_Lexico.NuevaReglaDeTokens(@">|<|==|>=|<=|!", "COMPARADOR");
-            Analizador_Lexico.NuevaReglaDeTokens(@"([0][x|X])([0-9]|[a-f][A-F])*", "HEXADECIMAL");
+            Analizador_Lexico.NuevaReglaDeTokens("//[^\r\n]*", "COMENTARIO1");
+            Analizador_Lexico.NuevaReglaDeTokens("/[*].*?[*]/", "COMENTARIO2");
             Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+\.[0-9]+", "DECIMAL");
+            Analizador_Lexico.NuevaReglaDeTokens(@"([0][x|X])([0-9]|[a-f][A-F])*", "HEXADECIMAL");
+            Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+", "NUMERO");
+            Analizador_Lexico.NuevaReglaDeTokens(@"[\(\)\{\}\[\];,]", "DELIMITADOR");
+            Analizador_Lexico.NuevaReglaDeTokens(@"[\=\+\-/*%]", "OPERADOR");
+            Analizador_Lexico.NuevaReglaDeTokens(@">|<|==|>=|<=|!", "COMPARADOR");
 
             Analizador_Lexico.Debuggear(RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
         }
 
         public void AnalizarCodigo()
         {
-
             foreach (var token in Analizador_Lexico.Tokens(Texto_A_Compilar))
             {
 
@@ -89,7 +88,7 @@ namespace Proyecto_Compis
                         }
                         else
                         {
-                            escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + ", es:     " + item.Nombre);
+                            escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + "-" + ((item.Cadena.Length + item.Columna)-1) + ", es:     " + item.Nombre);
                         }
                     }
                 }
