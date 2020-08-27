@@ -40,22 +40,20 @@ namespace Proyecto_Compis
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //Introduccir reglas para reconcoer los tokens
-            
-            Analizador_Lexico.NuevaReglaDeTokens(@"\d*\.?\d+", "NUMERO");          
+            //Introduccir reglas para reconcoer los tokens           
+            Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+", "NUMERO");
             Analizador_Lexico.NuevaReglaDeTokens(@"[\.=\+\-/*%]", "OPERADOR");
             Analizador_Lexico.NuevaReglaDeTokens(@"\s+", "ESPACIO", true);
             Analizador_Lexico.NuevaReglaDeTokens("//[^\r\n]*", "COMENTARIO1");
-            Analizador_Lexico.NuevaReglaDeTokens("/[*].*?[*]/", "COMENTARIO2");
-            Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z][\w]*\b{32}", "IDENTIFICADOR");
+            Analizador_Lexico.NuevaReglaDeTokens("/[*].*?[*]/", "COMENTARIO2");//falta retornar error /*
+            Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z](\w){0,32}\b", "IDENTIFICADOR");
             Analizador_Lexico.NuevaReglaDeTokens("\".*?\"", "CADENA");
             Analizador_Lexico.NuevaReglaDeTokens(@"[\(\)\{\}\[\];,]", "DELIMITADOR");
             Analizador_Lexico.NuevaReglaDeTokens(@"'\\.'|'[^\\]'", "CARACTER");
             Analizador_Lexico.NuevaReglaDeTokens(@">|<|==|>=|<=|!", "COMPARADOR");
-           // Analizador_Lexico.NuevaReglaDeTokens(@"/(0x)?[0-9a-f]+/", "HEXADECIMAL");
-            //Analizador_Lexico.NuevaReglaDeTokens(@"^[0-9]([.,][0-9]{1,3})?$", "DOUBLE");
-            
-            
+            Analizador_Lexico.NuevaReglaDeTokens(@"([0][x|X])([0-9]|[a-f][A-F])*", "HEXADECIMAL");
+            Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+\.[0-9]+", "DECIMAL");
+
             Analizador_Lexico.Debuggear(RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
         }
 
