@@ -84,11 +84,11 @@ namespace Proyecto_Compis
                     {
                         if (item.Nombre == "ERROR")
                         {
-                            escritor.WriteLine("// Error en la Linea: " + item.Linea + ". // Caracter no reconocido: " + item.Cadena);
+                            escritor.WriteLine("// Error en la Linea: " + item.Linea + ". // Caracter no reconocido: " + item.Cadena+"\n");
                         }
                         else
                         {
-                            escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + "-" + ((item.Cadena.Length + item.Columna)-1) + ", es:     " + item.Nombre);
+                            escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + "-" + ((item.Cadena.Length + item.Columna)-1) + ", es:     " + item.Nombre+"\n");
                         }
                     }
                 }
