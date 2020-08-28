@@ -45,8 +45,8 @@ namespace Proyecto_Compis
             Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z](\w){0,24}\b", "IDENTIFICADOR");
             Analizador_Lexico.NuevaReglaDeTokens("\".*?\"", "CADENA");
             Analizador_Lexico.NuevaReglaDeTokens(@"'\\.'|'[^\\]'", "CARACTER");
-            Analizador_Lexico.NuevaReglaDeTokens("//[^\r\n]*", "COMENTARIO_LINEAL");
-            Analizador_Lexico.NuevaReglaDeTokens("/[*].*?[*]/", "COMENTARIO_PARRAFO");
+            Analizador_Lexico.NuevaReglaDeTokens("//[^\r\n]*", "COMENTARIO_SIMPLE");
+            Analizador_Lexico.NuevaReglaDeTokens("/[*].*?[*]/", "COMENTARIO_MULTILINEA");
             Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+\.[0-9]*([eE][+-]?)?[0-9]+", "DECIMAL");
             Analizador_Lexico.NuevaReglaDeTokens(@"([0][x|X])([0-9]|[a-f]|[A-F])*", "HEXADECIMAL");
             Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+", "NUMERO");
