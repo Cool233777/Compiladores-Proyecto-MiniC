@@ -60,7 +60,7 @@ namespace Proyecto_Compis
             //Match match1 = Regex.Match(Expected);
             if (LookAhead == Expected)
             {
-                var aux = Tokens.FindIndex(x => x.Cadena == Expected);
+                var aux = Tokens.FindIndex(x => x.Cadena == Expected);//cambiar/arrelgar para sacar los tokens aprobados
                 LookAhead = Tokens[aux + 1].Cadena;
                 cont++;
             }
@@ -72,7 +72,7 @@ namespace Proyecto_Compis
 
         public void Parse_Expression()
         {
-
+            //ver todo lo que esta adentro de la expresion
         }
 
         public void Parse_Statement()
