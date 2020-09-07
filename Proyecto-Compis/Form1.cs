@@ -20,7 +20,7 @@ namespace Proyecto_Compis
             InitializeComponent();
         }
 
-        public List<string> Lista_Reservadas = new List<string>() { { "void" }, { "public" }, { "int" }, { "double" }, { "bool" }, { "string" }, { "const" }, { "if" }, { "null" }, { "if" }, { "else" }, { "return" }, { "New" }, { "Console" }, { "WriteLine" }, { "for" }, { "while" }, { "break" }, { "class" }, { "interface" }, { "foreach" }, { "NewArray" }, { "class" }, { "this" }, };
+        public List<string> Lista_Reservadas = new List<string>() { { "void" }, { "public" }, { "int" }, { "double" }, { "bool" }, { "string" }, { "const" }, { "if" }, { "null" }, { "if" }, { "else" }, { "return" }, { "New" }, { "Console" }, { "WriteLine" }, { "for" }, { "while" }, { "break" }, { "class" }, { "interface" }, { "foreach" }, { "NewArray" }, { "class" }, { "this" }, { "print" } };
         public AnalizadorLex Analizador_Lexico = new AnalizadorLex();//
         public List<PropiedadesDePalabras> Lista_Tokens = new List<PropiedadesDePalabras>();//
         public string Texto_A_Compilar;
