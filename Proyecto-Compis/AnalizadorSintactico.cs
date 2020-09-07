@@ -23,26 +23,33 @@ namespace Proyecto_Compis
         {
             while(cont<Tokens.Count)
             {
-                MatchToken(Tokens[cont].Cadena, Tokens[cont]); //MatchToken("if")
-                MatchToken(Tokens[cont].Cadena, Tokens[cont]);
+                MatchToken(Tokens[cont].Cadena);//MatchToken("if");
+                MatchToken(Tokens[cont].Cadena);// (
                 Parse_Expression();
-                MatchToken(Tokens[cont].Cadena, Tokens[cont]);
-                Parse_Expression();
-                MatchToken(Tokens[cont].Cadena, Tokens[cont]);
-                MatchToken(Tokens[cont].Cadena, Tokens[cont]);//MatchToken("else")
+                MatchToken(Tokens[cont].Cadena);// )
+                MatchToken(Tokens[cont].Cadena); // {
                 Parse_Statement();
-                MatchToken(Tokens[cont].Cadena, Tokens[cont]);
-
-
+                MatchToken(Tokens[cont].Cadena);// }
+                MatchToken(Tokens[cont].Cadena);//MatchToken("else");
+                MatchToken(Tokens[cont].Cadena); // {
+                ELSE_Parse_Statement();
+                MatchToken(Tokens[cont].Cadena);// }
+                //Parse_Statement(); // o es if o es {
+                //MatchToken(Tokens[cont].Cadena);// (
+                //Parse_Expression();
+                //MatchToken(Tokens[cont].Cadena);// )
+                //MatchToken(Tokens[cont].Cadena);// {
+                //Parse_Statement();
+                //MatchToken(Tokens[cont].Cadena); // }
             }
         }
 
-        public void RETURN_Statement(string T_Ex)
+        public void RETURN_Statement()
         {
           
         }
 
-        public void MatchToken(string Expected,PropiedadesDePalabras tk)
+        public void MatchToken(string Expected)
         {
             if(PrimeraVez)
             {
@@ -53,7 +60,7 @@ namespace Proyecto_Compis
             //Match match1 = Regex.Match(Expected);
             if (LookAhead == Expected)
             {
-                var aux = Tokens.FindIndex(x => x.Cadena == tk.Cadena);
+                var aux = Tokens.FindIndex(x => x.Cadena == Expected);
                 LookAhead = Tokens[aux + 1].Cadena;
                 cont++;
             }
@@ -70,7 +77,43 @@ namespace Proyecto_Compis
 
         public void Parse_Statement()
         {
+            if (LookAhead == "if")
+            {
+                IF_Statement();
+            }
+            else if (LookAhead == "return")
+            {
+                RETURN_Statement();
+            }
+            Parse_Expression();
+        }
 
+        public void ELSE_Parse_Statement()
+        {
+            if (LookAhead == "if")
+            {
+                IF_Statement();
+            }
+            Parse_Expression();
+            //if (LoockAhead == "if")
+            //{
+            //    MatchToken(LoockAhead);
+            //    cont++;
+            //    if (LoockAhead == "(")
+            //    {
+            //        MatchToken(LoockAhead);
+            //        cont++;
+            //    }
+            //}
+            //else if (LoockAhead == "{")
+            //{
+            //    MatchToken(LoockAhead);
+            //    cont++;
+            //}
+            //else
+            //{
+            //    //error de sintaxis
+            //}
         }
     }
 }
