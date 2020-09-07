@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalizadoeSintactico.cs" />
+    <Compile Include="AnalizadorSintactico.cs" />
     <Compile Include="AnalizadorLex.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
