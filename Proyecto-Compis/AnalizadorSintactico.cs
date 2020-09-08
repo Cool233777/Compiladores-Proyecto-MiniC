@@ -14,14 +14,14 @@ namespace Proyecto_Compis
         public List<PropiedadesDePalabras> Tokens;
         public int cont = 0;
         Stack<PropiedadesDePalabras> Expr = new Stack<PropiedadesDePalabras>();
-        public AnalizadorSintactico(AnalizadorLex Lex, List<PropiedadesDePalabras>Tokns)
+        public AnalizadorSintactico(AnalizadorLex Lex, List<PropiedadesDePalabras> Tokns)
         {
             Regex = Lex.REGEX;
             Tokens = Tokns;
         }
         public void IF_Statement()
         {
-            while(cont<Tokens.Count)
+            while (cont < Tokens.Count)
             {
                 MatchToken(Tokens[cont].Cadena);//MatchToken("if");
                 MatchToken(Tokens[cont].Cadena);// (
@@ -46,12 +46,12 @@ namespace Proyecto_Compis
 
         public void RETURN_Statement()
         {
-          
+
         }
 
         public void MatchToken(string Expected)
         {
-            if(PrimeraVez)
+            if (PrimeraVez)
             {
                 LookAhead = Regex.Match(Expected).Value;
                 PrimeraVez = false;
@@ -75,10 +75,16 @@ namespace Proyecto_Compis
             //ver todo lo que esta adentro de la expresion
 
             var contador = cont;
-            while (Tokens[contador].Cadena!=")")
+            LookAhead = Tokens[contador + 1].Cadena;
+            while (Tokens[contador].Cadena != ")" || LookAhead != ")")
             {
+                if (Tokens[contador].Cadena == ")" && LookAhead == "{")
+                {
+                    break;
+                }
                 Expr.Push(Tokens[contador]);
                 contador++;
+                LookAhead = Tokens[contador + 1].Cadena;
             }
             var Cadena_A_Comparar = 1;
             switch (Cadena_A_Comparar)
@@ -94,10 +100,29 @@ namespace Proyecto_Compis
                     break;
                 case 2:
                     Parse_LValue();
+                    Cadena_A_Comparar = 3;
+                    break;
+                case 3:
+                    if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "this")
+                    {
+                        // solo le puede seguir .ident
+                    }
+                    Cadena_A_Comparar = 4;
+                    break;
+                case 4:
+                    Parse_Expression();
+                    Cadena_A_Comparar = 5;
+                    break;
+                case 5:
+                    Parse_Expression();
+                    if (LookAhead == "+" || LookAhead == "-" || LookAhead == "*" || LookAhead == "/" || LookAhead == "%" || LookAhead == "<" || LookAhead == ">")
+                    {
+                        Parse_Expression();
+                    }
                     break;
                 default:
                     break;
- 
+
             }
         }
         public void Parse_LValue()
@@ -106,24 +131,23 @@ namespace Proyecto_Compis
         }
         public void Parse_Constant()
         {
-            if(Tokens[cont].Nombre == "NUMERO")
+            if (Expr.Peek().Nombre == "NUMERO")
             {
 
             }
-            else if 
-                (Tokens[cont].Nombre=="DECIMAL")
+            else if (Expr.Peek().Nombre == "DECIMAL")
             {
 
             }
-            else if (Tokens[cont].Nombre=="RESERVADO" && Tokens[cont].Cadena == "bool")
+            else if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "bool")
             {
 
             }
-            else if (Tokens[cont].Nombre == "RESERVADO" && Tokens[cont].Cadena == "string")
+            else if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "string")
             {
 
             }
-            else if (Tokens[cont].Nombre == "RESERVADO" && Tokens[cont].Cadena == "null")
+            else if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "null")
             {
 
             }
