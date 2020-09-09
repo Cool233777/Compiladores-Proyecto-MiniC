@@ -50,9 +50,9 @@ namespace Proyecto_Compis
             Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+\.[0-9]*([eE][+-]?)?[0-9]+", "DECIMAL");
             Analizador_Lexico.NuevaReglaDeTokens(@"([0][x|X])([0-9]|[a-f]|[A-F])*", "HEXADECIMAL");
             Analizador_Lexico.NuevaReglaDeTokens(@"-*[0-9]+", "NUMERO");
-            Analizador_Lexico.NuevaReglaDeTokens(@"[\(\)\{\}\[\];,:]", "DELIMITADOR");
-            Analizador_Lexico.NuevaReglaDeTokens(@"[\.=\+\-/*%]", "OPERADOR");
+            Analizador_Lexico.NuevaReglaDeTokens(@"[\(\)\{\}\[\];,:]", "DELIMITADOR");    
             Analizador_Lexico.NuevaReglaDeTokens(@">|<|==|>=|<=|!", "COMPARADOR");
+            Analizador_Lexico.NuevaReglaDeTokens(@"[\.=\+\-/*%]", "OPERADOR");
 
             Analizador_Lexico.Debuggear(RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture);
         }

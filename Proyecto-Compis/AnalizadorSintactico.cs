@@ -13,7 +13,7 @@ namespace Proyecto_Compis
         public string LookAhead;
         public List<PropiedadesDePalabras> Tokens;
         public int cont = 0;
-        Stack<PropiedadesDePalabras> Expr = new Stack<PropiedadesDePalabras>();
+        Queue<PropiedadesDePalabras> Expr = new Queue<PropiedadesDePalabras>();
         public AnalizadorSintactico(AnalizadorLex Lex, List<PropiedadesDePalabras> Tokns)
         {
             Regex = Lex.REGEX;
@@ -60,8 +60,8 @@ namespace Proyecto_Compis
             //Match match1 = Regex.Match(Expected);
             if (LookAhead == Expected)
             {
-                var aux = Tokens.FindIndex(x => x.Cadena == Expected);//cambiar/arrelgar para sacar los tokens aprobados
-                LookAhead = Tokens[aux + 1].Cadena;
+                //var aux = Tokens.FindIndex(x => x.Cadena == Expected);//cambiar/arrelgar para sacar los tokens aprobados
+                LookAhead = Tokens[cont + 1].Cadena;
                 cont++;
             }
             else
@@ -70,94 +70,271 @@ namespace Proyecto_Compis
             }
         }
 
-        public void Parse_Expression()
-        {
+        public void Parse_Expression_IF() 
+        { 
             //ver todo lo que esta adentro de la expresion
-
-            var contador = cont;
-            LookAhead = Tokens[contador + 1].Cadena;
-            while (Tokens[contador].Cadena != ")" || LookAhead != ")")
+            //var contador = cont;
+            LookAhead = Tokens[cont + 1].Cadena;
+            while (Tokens[cont].Cadena != ")" || LookAhead != ")")
             {
-                if (Tokens[contador].Cadena == ")" && LookAhead == "{")
+                if ((Tokens[cont].Cadena == ")" && LookAhead == "{") || Tokens[cont].Cadena == "}")
                 {
                     break;
                 }
-                Expr.Push(Tokens[contador]);
-                contador++;
-                LookAhead = Tokens[contador + 1].Cadena;
+                Expr.Enqueue(Tokens[cont]);
+                cont++;
+                //contador++;
+                LookAhead = Tokens[cont + 1].Cadena;
             }
+            LookAhead = Tokens[cont].Cadena;
             var Cadena_A_Comparar = 1;
-            switch (Cadena_A_Comparar)
+            while (Expr.Count > 0)
             {
-                //case 1:
-                //if ((Expr.Peek().Nombre == "IDENTIFICADOR") || (Parse_Expression()+"." + "IDENTIFICADOR" == "R"))
-                // {
+                switch (Cadena_A_Comparar)// el switch aqui ya no se va a usar
+                {
+                    //case 1:
+                    //if ((Expr.Peek().Nombre == "IDENTIFICADOR") || (Parse_Expression()+"." + "IDENTIFICADOR" == "R"))
+                    // {
 
-                //break;
-                case 1:
-                    Parse_Constant();
-                    Cadena_A_Comparar = 2;
-                    break;
-                case 2:
-                    Parse_LValue();
-                    Cadena_A_Comparar = 3;
-                    break;
-                case 3:
-                    if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "this")
-                    {
-                        // solo le puede seguir .ident
-                    }
-                    Cadena_A_Comparar = 4;
-                    break;
-                case 4:
-                    Parse_Expression();
-                    Cadena_A_Comparar = 5;
-                    break;
-                case 5:
-                    Parse_Expression();
-                    if (LookAhead == "+" || LookAhead == "-" || LookAhead == "*" || LookAhead == "/" || LookAhead == "%" || LookAhead == "<" || LookAhead == ">")
-                    {
-                        Parse_Expression();
-                    }
-                    break;
-                default:
-                    break;
+                    //break;
+                    case 1:
+                        //Parse_Constant();
+                        Cadena_A_Comparar = 2;
+                        break;
+                    case 2:
+                        //Parse_LValue();
+                        Cadena_A_Comparar = 3;
+                        break;
+                    case 3:
+                        //if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "this")
+                        //{
+                        //    // solo le puede seguir .ident
+                        //}
+                        Cadena_A_Comparar = 4;
+                        break;
+                    case 4:
+                        //Parse_Expression_Parent();
+                        //if ((Expr.Peek().Nombre == "IDENTIFICADOR" && ) || Expresion == ">")//Expresion == "+" || Expresion == "-" || Expresion == "*" || Expresion == "/" || Expresion == "%" || 
+                        //{
+                        //    Parse_Expression();
+                        //}
+                        //Parse_Expression();
+                        Cadena_A_Comparar = 5;
+                        break;
+                    case 5:
+                        //var lookahead2 = "";
+                        var expresion_Izquierda = Expr.Dequeue();
+                        //if (Expr.Peek().Cadena == "<" || Expr.Peek().Cadena == "="|| Expr.Peek().Cadena == ">" || Expr.Peek().Cadena == "|")
+                        //{
 
+                        //}
+                        if (expresion_Izquierda.Nombre == "IDENTIFICADOR")
+                        {
+                            //if (Expr.Peek().Nombre == "OPERADOR")
+                            //{
+                            //    Expr.Dequeue();
+                            //}
+                            if (Expr.Peek().Cadena == "<" || Expr.Peek().Cadena == "=" || Expr.Peek().Cadena == ">" || Expr.Peek().Cadena == "||")
+                            {
+                                var comparador = Expr.Dequeue();
+                                if (Expr.Peek().Nombre != "IDENTIFICADOR")
+                                {
+                                    //error de sintaxis
+
+                                }
+                                else
+                                {
+                                    Expr.Dequeue();
+                                    //si se esta comparando con lo mismo
+                                }
+                            }
+                            //Error de sintaxis
+                        }
+                        else if (expresion_Izquierda.Nombre == "NUMERO" || expresion_Izquierda.Nombre == "DECIMAL" || expresion_Izquierda.Nombre == "HEXADECIMAL")
+                        {
+                            //if (Expr.Peek().Nombre == "OPERADOR")
+                            //{
+                            //    Expr.Dequeue();
+                            //}
+                            if (Expr.Peek().Cadena == "<" || Expr.Peek().Cadena == "=" || Expr.Peek().Cadena == ">" || Expr.Peek().Cadena == "|" || Expr.Peek().Cadena == "+" || Expr.Peek().Cadena == "-" || Expr.Peek().Cadena == "*" || Expr.Peek().Cadena == "/" || Expr.Peek().Cadena == "&")
+                            {
+                                var comparador = Expr.Dequeue();
+                                //if (Expr.Peek().Nombre != expresion_Izquierda.Nombre)
+                                //{
+                                //    //error de sintaxis
+
+                                //}
+                                if (Expr.Peek().Nombre != "NUMERO" || Expr.Peek().Nombre != "DECIMAL" || Expr.Peek().Nombre != "HEXADECIMAL")
+                                {
+                                    //error de sintaxis
+                                }
+                                else
+                                {
+                                    //si se esta comparando con lo mismo
+                                }
+                            }
+                            // ERROR DE SINTAXIS
+                        }
+                        //Parse_Expression();
+                        break;
+                    default:
+                        break;
+
+                }
             }
         }
-        public void Parse_LValue()
+
+        public void Parse_Expression()
         {
-            //dudas
+            var Expresion = Tokens[cont];
+            if (Expresion.Nombre == "NUMERO" || Expresion.Nombre == "DECIMAL" || Expresion.Nombre == "HEXADECIMAL" || Expresion.Nombre == "IDENTIFICADOR" || (Expresion.Nombre == "RESERVADA" && Expresion.Cadena == "bool"))
+            {
+                Parse_Constant();
+                Parse_Expression();
+            }
+            else if (Expresion.Cadena == "(")
+            {
+                cont++;
+                Parse_Expression();
+                cont++;
+            }
+            else// T
+            {
+                Parse_Expression_T();
+            }
         }
-        public void Parse_Constant()
+        public void Parse_Expression_T()
         {
-            if (Expr.Peek().Nombre == "NUMERO")
+            var Expresion = Tokens[cont];
+            if (Expresion.Cadena == "&&")
             {
-
-            }
-            else if (Expr.Peek().Nombre == "DECIMAL")
-            {
-
-            }
-            else if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "bool")
-            {
-
-            }
-            else if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "string")
-            {
-
-            }
-            else if (Expr.Peek().Nombre == "RESERVADO" && Expr.Peek().Cadena == "null")
-            {
-
+                cont++;
+                Parse_Expression_F();
             }
             else
             {
-                //error de sintaxis, porque estos son los parámetros que recibe el if obligatorio 
+                Parse_Expression_F();
             }
+        }
+
+        public void Parse_Expression_F()
+        {
+            var Expresion = Tokens[cont];
+            if (Expresion.Cadena == "==")
+            {
+                cont++;
+                Parse_Expression_K();
+            }
+            else if (Expresion.Cadena == "!=")
+            {
+                cont++;
+                Parse_Expression_K();
+            }
+            else if (Expresion.Cadena == "!")
+            {
+                cont++;
+                Parse_Expression_F();
+            }
+            else
+            {
+                Parse_Expression_K();
+            }
+        }
+
+        public void Parse_Expression_K()
+        {
+            var Expresion = Tokens[cont];
+            if (Expresion.Cadena == "<")
+            {
+                cont++;
+                Parse_Expression_M();
+            }
+            else if (Expresion.Cadena == "<=")
+            {
+                cont++;
+                Parse_Expression_M();
+            }
+            else if (Expresion.Cadena == ">")
+            {
+                cont++;
+                Parse_Expression_M();
+            }
+            else if (Expresion.Cadena == ">=")
+            {
+                Parse_Expression_M();
+            }
+            else
+            {
+                Parse_Expression_M();
+            }
+        }
+
+        public void Parse_Expression_M()
+        {
+            
+        }
+
+
+        //public void Parse_Expression_Parent()
+        //{
+        //    //MatchToken("(");
+        //    //Parse_Expression();
+        //    //MatchToken(")");
+        //}
+
+        //public void Parse_LValue()
+        //{
+        //    //dudas
+        //}
+        public void Parse_Constant()
+        {
+            if (Tokens[cont].Nombre == "NUMERO")//adentro if
+            {
+                cont++;
+            }
+            else if (Tokens[cont].Nombre == "DECIMAL")//adentro if
+            {
+                cont++;
+            }
+            else if (Tokens[cont].Nombre == "RESERVADO" && Expr.Peek().Cadena == "bool")//creacion variable
+            {
+                cont++;
+            }
+            else if (Tokens[cont].Nombre == "RESERVADO" && Expr.Peek().Cadena == "string")//creacion variable
+            {
+                cont++;
+            }
+            else if (Tokens[cont].Nombre == "RESERVADO" && Expr.Peek().Cadena == "null")//creacion variable
+            {
+                cont++;
+            }
+            else if (Tokens[cont].Nombre == "IDENTIFICADOR")//adentro if
+            {
+                cont++;
+                //Expr.Dequeue();
+                //ver que sea del mismo tipo al que se va a comparar
+            }
+            else
+            {
+                //error de sintaxis
+            }
+            //else if (Expr.Peek().Nombre == "DELIMITADOR" && Expr.Peek().Cadena == "(")
+            //{
+            //    if (Expr.Peek().Cadena == ")")
+            //    {
+            //        Expr.Dequeue();
+            //    }
+            //    //Expr.Dequeue();
+
+            //}
+            //else
+            //{
+            //    //error de sintaxis, porque estos son los parámetros que recibe el if obligatorio o una variable extra no definida
+            //}
         }
         public void Parse_Statement()
         {
+            //Expresion = Tokens[cont + 1].Cadena;
             if (LookAhead == "if")
             {
                 IF_Statement();
@@ -165,6 +342,10 @@ namespace Proyecto_Compis
             else if (LookAhead == "return")
             {
                 RETURN_Statement();
+            }
+            else if (LookAhead == "else")
+            {
+                ELSE_Parse_Statement();
             }
             Parse_Expression();
         }
@@ -174,6 +355,14 @@ namespace Proyecto_Compis
             if (LookAhead == "if")
             {
                 IF_Statement();
+            }
+            else if (LookAhead == "return")
+            {
+                RETURN_Statement();
+            }
+            else if (LookAhead == "else")
+            {
+                ELSE_Parse_Statement();
             }
             Parse_Expression();
             //if (LoockAhead == "if")
