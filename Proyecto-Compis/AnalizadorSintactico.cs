@@ -268,12 +268,55 @@ namespace Proyecto_Compis
                 Parse_Expression_M();
             }
         }
-
         public void Parse_Expression_M()
         {
-            
+            var Expresion = Tokens[cont];
+            if (Expresion.Cadena == "+")
+            {
+                cont++;
+                Parse_Expression_L();
+            }
+            else if (Expresion.Cadena == "-")
+            {
+                cont++;
+                Parse_Expression_L();
+            }
+            else
+            {
+                Parse_Expression_L();
+            }
+
         }
 
+        public void Parse_Expression_L()
+        {
+            var Expresion = Tokens[cont];
+            if (Expresion.Cadena == "*")
+            {
+                cont++;
+                Parse_Expression_U();
+            }
+            else if (Expresion.Cadena == "/")
+            {
+                cont++;
+                Parse_Expression_U();
+            }
+            else if (Expresion.Cadena == "%")
+            {
+                cont++;
+                Parse_Expression_U();
+            }
+            else
+            {
+                Parse_Expression_U();
+            }
+        }
+        public void Parse_Expression_U()
+        {
+            var Expresion = Tokens[cont];
+            Parse_Constant();
+
+        }
 
         //public void Parse_Expression_Parent()
         //{
