@@ -19,36 +19,87 @@ namespace Proyecto_Compis
             Regex = Lex.REGEX;
             Tokens = Tokns;
         }
-        public void IF_Statement()
+
+        public void Programa()
         {
-            while (cont < Tokens.Count)
+            DeclMas();
+        }
+
+        public void DeclMas()
+        {
+            // variable decl
+            if (true)
             {
-                MatchToken(Tokens[cont].Cadena);//MatchToken("if");
-                MatchToken(Tokens[cont].Cadena);// (
-                Parse_Expression();
-                MatchToken(Tokens[cont].Cadena);// )
-                MatchToken(Tokens[cont].Cadena); // {
-                Parse_Statement();
-                MatchToken(Tokens[cont].Cadena);// }
-                MatchToken(Tokens[cont].Cadena);//MatchToken("else");
-                MatchToken(Tokens[cont].Cadena); // {
-                ELSE_Parse_Statement();
-                MatchToken(Tokens[cont].Cadena);// }
-                //Parse_Statement(); // o es if o es {
-                //MatchToken(Tokens[cont].Cadena);// (
-                //Parse_Expression();
-                //MatchToken(Tokens[cont].Cadena);// )
-                //MatchToken(Tokens[cont].Cadena);// {
-                //Parse_Statement();
-                //MatchToken(Tokens[cont].Cadena); // }
+                VariableDecl();
+            }
+            else 
+            {
+                FunctionDecl();
+            }
+            //function decl
+        }
+
+        public void VariableDecl()
+        {
+            Generar_Variable();
+            MatchToken(Tokens[cont].Cadena);//espero ;
+        }
+
+        public void Generar_Variable()
+        {
+            Generar_Tipo_Var();
+            //espero identificador
+        }
+
+        public void Generar_Tipo_Var()
+        {
+            var entrada = Tokens[cont];
+            if (entrada.Nombre == "RESERVADA")
+            {
+                if (entrada.Cadena == "bool")
+                {
+                    cont++;
+                    LookAhead = Tokens[cont].Cadena;
+                }
+                else if (entrada.Cadena == "int")
+                {
+                    cont++;
+                    LookAhead = Tokens[cont].Cadena;
+                }
+                else if (entrada.Cadena == "double")
+                {
+                    cont++;
+                    LookAhead = Tokens[cont].Cadena;
+                }
+                else if (entrada.Cadena == "string")
+                {
+                    cont++;
+                    LookAhead = Tokens[cont].Cadena;
+                }
+            }
+            else if (entrada.Nombre== "IDENTIFICADOR")
+            {
+                cont++;
+                LookAhead = Tokens[cont].Cadena;
+            }
+            else
+            {
+                Generar_Tipo_Var();
+                MatchToken(Tokens[cont].Cadena);// [
+                MatchToken(Tokens[cont].Cadena);// ]
             }
         }
 
-        public void RETURN_Statement()
+        public void FunctionDecl()
         {
+            Generar_Tipo_Var();
+            //espero identificador
+            MatchToken(Tokens[cont].Cadena);// (
+            //Formals();
+            MatchToken(Tokens[cont].Cadena);// )
+            // puede venir o no un stmt
 
         }
-
         public void MatchToken(string Expected)
         {
             if (PrimeraVez)
@@ -69,6 +120,24 @@ namespace Proyecto_Compis
                 //ERROR DE SINTAXIS
             }
         }
+
+        public void IF_Statement()
+        {
+            while (cont < Tokens.Count)
+            {
+                MatchToken(Tokens[cont].Cadena);//MatchToken("if");
+                MatchToken(Tokens[cont].Cadena);// (
+                Parse_Expression();
+                MatchToken(Tokens[cont].Cadena);// )
+                MatchToken(Tokens[cont].Cadena); // {
+                Parse_Statement();// poner while token[cont].cadena != "}"
+                MatchToken(Tokens[cont].Cadena);// }
+                MatchToken(Tokens[cont].Cadena);//MatchToken("else");
+                MatchToken(Tokens[cont].Cadena); // {
+                ELSE_Parse_Statement();
+                MatchToken(Tokens[cont].Cadena);// }
+            }
+        }  
 
         public void Parse_Expression_IF() 
         { 
@@ -195,8 +264,10 @@ namespace Proyecto_Compis
             else if (Expresion.Cadena == "(")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression();
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
             }
             else// T
             {
@@ -209,6 +280,7 @@ namespace Proyecto_Compis
             if (Expresion.Cadena == "&&")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_F();
             }
             else
@@ -223,16 +295,19 @@ namespace Proyecto_Compis
             if (Expresion.Cadena == "==")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_K();
             }
             else if (Expresion.Cadena == "!=")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_K();
             }
             else if (Expresion.Cadena == "!")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_F();
             }
             else
@@ -247,20 +322,25 @@ namespace Proyecto_Compis
             if (Expresion.Cadena == "<")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_M();
             }
             else if (Expresion.Cadena == "<=")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_M();
             }
             else if (Expresion.Cadena == ">")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_M();
             }
             else if (Expresion.Cadena == ">=")
             {
+                cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_M();
             }
             else
@@ -274,11 +354,13 @@ namespace Proyecto_Compis
             if (Expresion.Cadena == "+")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_L();
             }
             else if (Expresion.Cadena == "-")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_L();
             }
             else
@@ -294,16 +376,19 @@ namespace Proyecto_Compis
             if (Expresion.Cadena == "*")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_U();
             }
             else if (Expresion.Cadena == "/")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_U();
             }
             else if (Expresion.Cadena == "%")
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 Parse_Expression_U();
             }
             else
@@ -318,62 +403,44 @@ namespace Proyecto_Compis
 
         }
 
-        //public void Parse_Expression_Parent()
-        //{
-        //    //MatchToken("(");
-        //    //Parse_Expression();
-        //    //MatchToken(")");
-        //}
-
-        //public void Parse_LValue()
-        //{
-        //    //dudas
-        //}
         public void Parse_Constant()
         {
             if (Tokens[cont].Nombre == "NUMERO")//adentro if
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
             }
             else if (Tokens[cont].Nombre == "DECIMAL")//adentro if
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
             }
             else if (Tokens[cont].Nombre == "RESERVADO" && Expr.Peek().Cadena == "bool")//creacion variable
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
             }
             else if (Tokens[cont].Nombre == "RESERVADO" && Expr.Peek().Cadena == "string")//creacion variable
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
             }
             else if (Tokens[cont].Nombre == "RESERVADO" && Expr.Peek().Cadena == "null")//creacion variable
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
             }
             else if (Tokens[cont].Nombre == "IDENTIFICADOR")//adentro if
             {
                 cont++;
+                LookAhead = Tokens[cont].Cadena;
                 //Expr.Dequeue();
                 //ver que sea del mismo tipo al que se va a comparar
             }
             else
             {
                 //error de sintaxis
-            }
-            //else if (Expr.Peek().Nombre == "DELIMITADOR" && Expr.Peek().Cadena == "(")
-            //{
-            //    if (Expr.Peek().Cadena == ")")
-            //    {
-            //        Expr.Dequeue();
-            //    }
-            //    //Expr.Dequeue();
-
-            //}
-            //else
-            //{
-            //    //error de sintaxis, porque estos son los parámetros que recibe el if obligatorio o una variable extra no definida
-            //}
+            } 
         }
         public void Parse_Statement()
         {
@@ -390,7 +457,11 @@ namespace Proyecto_Compis
             {
                 ELSE_Parse_Statement();
             }
-            Parse_Expression();
+            else
+            {
+                Parse_Expression();
+                MatchToken(Tokens[cont].Cadena);//;
+            }
         }
 
         public void ELSE_Parse_Statement()
@@ -407,26 +478,21 @@ namespace Proyecto_Compis
             {
                 ELSE_Parse_Statement();
             }
+            else
+            {
+                Parse_Expression();
+                MatchToken(Tokens[cont].Cadena);//;
+            }
+
+        }
+
+        public void RETURN_Statement()
+        {
+            MatchToken(Tokens[cont].Cadena);// return
+            MatchToken(Tokens[cont].Cadena);//(
             Parse_Expression();
-            //if (LoockAhead == "if")
-            //{
-            //    MatchToken(LoockAhead);
-            //    cont++;
-            //    if (LoockAhead == "(")
-            //    {
-            //        MatchToken(LoockAhead);
-            //        cont++;
-            //    }
-            //}
-            //else if (LoockAhead == "{")
-            //{
-            //    MatchToken(LoockAhead);
-            //    cont++;
-            //}
-            //else
-            //{
-            //    //error de sintaxis
-            //}
+            MatchToken(Tokens[cont].Cadena);// )
+            MatchToken(Tokens[cont].Cadena);//;
         }
     }
 }
