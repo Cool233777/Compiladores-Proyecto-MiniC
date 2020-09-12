@@ -1,0 +1,11 @@
+void Metodo() {
+	int numero;
+	string cadena;
+	double [] vector;
+	if (expression == ID) {
+		expresion;
+	}
+	else {
+		expression;
+	}
+}
