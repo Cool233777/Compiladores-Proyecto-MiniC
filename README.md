@@ -9,3 +9,8 @@ es mejor seguir la instrucción anterior.
 
 
 Las herramientas utilizadas para la programación de este proyecto fue REGEX. El proyecto funciona bien, lo único en lo que nos dio error fue en EOF, ya que creaba un conflicto con la ER de operadores. (En el archivo resultante los tokens para comentarios sí aparecen).
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+LABORATORIO A
+Cuando encuentra un error se recupera con un while que va recorriendo hasta encontrar un punto y coma. 
