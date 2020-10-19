@@ -61,38 +61,40 @@ namespace Proyecto_Compis
         {
             foreach (var token in Analizador_Lexico.Tokens(Texto_A_Compilar))
             {
-
-                if (token.Nombre == "IDENTIFICADOR")
+                while (token.Nombre != "COMENTARIO_SIMPLE" || token.Nombre != "COMENTARIO_MULTILINEA")
                 {
-                    if (Lista_Reservadas.Contains(token.Cadena))
+                    if (token.Nombre == "IDENTIFICADOR")
                     {
-                        token.Nombre = "RESERVADO";
+                        if (Lista_Reservadas.Contains(token.Cadena))
+                        {
+                            token.Nombre = "RESERVADO";
+                        }
                     }
+                    Lista_Tokens.Add(token);
                 }
-                Lista_Tokens.Add(token);
             }
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             AnalizarCodigo();
-            using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
-            {
-                using (var escritor = new StreamWriter(Archivo_Salida))
-                {
-                    foreach (var item in Lista_Tokens)
-                    {
-                        if (item.Nombre == "ERROR")
-                        {
-                            escritor.WriteLine("// Error en la Linea: " + item.Linea + ". // Caracter no reconocido: " + item.Cadena+"\n");
-                        }
-                        else
-                        {
-                            escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + "-" + ((item.Cadena.Length + item.Columna)-1) + ", es:     " + item.Nombre+"\n");
-                        }
-                    }
-                }
-            }
+            //using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
+            //{
+            //    using (var escritor = new StreamWriter(Archivo_Salida))
+            //    {
+            //        foreach (var item in Lista_Tokens)
+            //        {
+            //            if (item.Nombre == "ERROR")
+            //            {
+            //                escritor.WriteLine("// Error en la Linea: " + item.Linea + ". // Caracter no reconocido: " + item.Cadena+"\n");
+            //            }
+            //            else
+            //            {
+            //                escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + "-" + ((item.Cadena.Length + item.Columna)-1) + ", es:     " + item.Nombre+"\n");
+            //            }
+            //        }
+            //    }
+            //}
         }
     }
 }
