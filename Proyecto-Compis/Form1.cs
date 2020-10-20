@@ -17,15 +17,13 @@ namespace Proyecto_Compis
 
         public Form1()
         {
-            InitializeComponent();          
+            InitializeComponent();
         }
 
         public List<string> Lista_Reservadas = new List<string>() { { "void" }, { "public" }, { "int" }, { "double" }, { "bool" }, { "string" }, { "const" }, { "if" }, { "null" }, { "if" }, { "else" }, { "return" }, { "New" }, { "Console" }, { "WriteLine" }, { "for" }, { "while" }, { "break" }, { "class" }, { "interface" }, { "foreach" }, { "NewArray" }, { "class" }, { "this" }, };
         public AnalizadorLex Analizador_Lexico = new AnalizadorLex();//
         public List<PropiedadesDePalabras> Lista_Tokens = new List<PropiedadesDePalabras>();//
         public string Texto_A_Compilar;
-        public AnalizadorSintactico sintax = new AnalizadorSintactico();
-
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -42,7 +40,10 @@ namespace Proyecto_Compis
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            sintax.Crear_Tabla();
+            var f = "Esto es una cadena sin divisor";
+            var div = "cadena con divisor /   ";
+            var uno = f.Split('/');
+            var dos = div.Split('/');
             Analizador_Lexico.NuevaReglaDeTokens(@"\s+", "ESPACIO", true);
             Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z](\w){0,24}\b", "IDENTIFICADOR");
             Analizador_Lexico.NuevaReglaDeTokens("\".*?\"", "CADENA");
@@ -80,6 +81,8 @@ namespace Proyecto_Compis
         private void button2_Click(object sender, EventArgs e)
         {
             AnalizarCodigo();
+            AnalizadorSintactico sintax = new AnalizadorSintactico(Lista_Tokens);
+            sintax.Ejecutar_Analizador();
             //using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
             //{
             //    using (var escritor = new StreamWriter(Archivo_Salida))
