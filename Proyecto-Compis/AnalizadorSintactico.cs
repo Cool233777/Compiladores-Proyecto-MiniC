@@ -29,207 +29,306 @@ namespace Proyecto_Compis
         public void CrearDicNoTerminales()
         {
             var DicARegresar = new Dictionary<int, string[]>();
-            //S'-> Program
+            //0.S'-> Program
             DicARegresar.Add(0, new string[] { "1", "S'" });//Numero de produccion, {cuantos produce, nombre de produccion }
-            //Program-> Decl Program
+            //1.Program-> Decl Program
+            DicARegresar.Add(1, new string[] { "2", "Program" });
             //DicARegresar.Add(1, 2);
-            ////Program-> Decl
+            //2.Program-> Decl
+            DicARegresar.Add(2, new string[] { "1", "Program" });
             //DicARegresar.Add(2, 1);
-            ////Decl-> VariableDecl
+            ////3.Decl-> VariableDecl
+            DicARegresar.Add(3, new string[] { "1", "Decl" });
             //DicARegresar.Add(3, 1);
-            ////Decl-> FunctionsDecl
+            ////4.Decl-> FunctionsDecl
+            DicARegresar.Add(4, new string[] { "1", "Decl" });
             //DicARegresar.Add(4, 1);
-            ////Decl->  ConstDecl
+            ////5.Decl->  ConstDecl
+            DicARegresar.Add(5, new string[] { "1", "Decl" });
             //DicARegresar.Add(5, 1);
-            ////Decl-> ClassDecl
+            ////6.Decl-> ClassDecl
+            DicARegresar.Add(6, new string[] { "1", "Decl" });
             //DicARegresar.Add(6, 1);
-            ////Decl-> InterfaceDecl
+            ////7.Decl-> InterfaceDecl
+            DicARegresar.Add(7, new string[] { "1", "Decl" });
             //DicARegresar.Add(7, 1);
-            ////VariableDecl-> Variable
+            ////8.VariableDecl-> Variable ;
+            DicARegresar.Add(8, new string[] { "2", "VariableDecl" });
             //DicARegresar.Add(8, 2);
-            ////Variable> Type ident
+            ////9.Variable> Type ident
+            DicARegresar.Add(9, new string[] { "1", "Variable" });
             //DicARegresar.Add(9, 2);
             ////10. ConstDecl-> const ConstType ident ;
+            DicARegresar.Add(10, new string[] { "4", "ConstDecl" });
             //DicARegresar.Add(10, 4);
             ////11.ConstType -> int
+            DicARegresar.Add(11, new string[] { "1", "ConstType" });
             //DicARegresar.Add(11, 1);
             ////12.	ConstType -> double 
+            DicARegresar.Add(12, new string[] { "1", "ConstType" });
             //DicARegresar.Add(12, 1);
             ////13.	ConstType -> bool 
+            DicARegresar.Add(13, new string[] { "1", "ConstType" });
             //DicARegresar.Add(13, 1);
             ////14.	ConstType -> string
+            DicARegresar.Add(14, new string[] { "1", "ConstType" });
             //DicARegresar.Add(14, 1);
             ////15.Type->Type_P Type_R
+            DicARegresar.Add(15, new string[] { "2", "Type" });
             //DicARegresar.Add(15, 2);
             ////16.Type_P-> int
+            DicARegresar.Add(16, new string[] { "1", "Type_P" });
             //DicARegresar.Add(16, 1);
             ////17.Type_P-> double
+            DicARegresar.Add(17, new string[] { "1", "Type_P" });
             //DicARegresar.Add(17, 1);
             //18.Type_P-> bool
             DicARegresar.Add(18, new string[] { "1", "Type_P" });
             ////19.Type_P-> string
+            DicARegresar.Add(19, new string[] { "1", "Type_P" });
             //DicARegresar.Add(19, 1);
             ////20.Type_P->ident
+            DicARegresar.Add(20, new string[] { "1", "Type_P" });
             //DicARegresar.Add(20, 1);
             ////21.Type_R-> []
+            DicARegresar.Add(21, new string[] { "1", "Type_R" });
             //DicARegresar.Add(21, 1);
             ////22.Type_R-> ''
+            DicARegresar.Add(22, new string[] { "0", "Type_R" });
             //DicARegresar.Add(22, 0);
             ////23.FunctionsDecl->Type ident(Formals) StmtBlock
+            DicARegresar.Add(23, new string[] { "6", "FunctionsDecl" });
             //DicARegresar.Add(23, 6);
             ////24.FunctionsDecl-> void ident(Formals ) StmtBlock
+            DicARegresar.Add(24, new string[] { "6", "FunctionsDecl" });
             //DicARegresar.Add(24, 6);
             ////25.Formals->Variable Formals_P
+            DicARegresar.Add(25, new string[] { "2", "Formals" });
             //DicARegresar.Add(25, 2);
             ////26.Formals_P-> , Formals
+            DicARegresar.Add(26, new string[] { "2", "Formals_P" });
             //DicARegresar.Add(26, 2);
             ////27.Formals_P-> ''
+            DicARegresar.Add(27, new string[] { "0", "Formals_P" });
             //DicARegresar.Add(27, 0);
             ////28.ClassDecl-> class ident ClassDecl_P { ClassDecl_Q }
+            DicARegresar.Add(28, new string[] { "6", "ClassDecl" });
             //DicARegresar.Add(28, 6);
             ////29.	ClassDecl_P -> : ident ClassDecl_R
+            DicARegresar.Add(29, new string[] { "3", "ClassDecl_P" });
             //DicARegresar.Add(29, 3);
             ////30.	ClassDecl_P -> ''
+            DicARegresar.Add(30, new string[] { "0", "ClassDecl_P" });
             //DicARegresar.Add(30, 0);
             ////31.	ClassDecl_R -> ClassDecl_O
+            DicARegresar.Add(31, new string[] { "1", "ClassDecl_R" });
             //DicARegresar.Add(31, 1);
             ////32.	ClassDecl_R -> ''
+            DicARegresar.Add(32, new string[] { "0", "ClassDecl_R" });
             //DicARegresar.Add(32, 0);
             ////33.	ClassDecl_O -> , ident
+            DicARegresar.Add(33, new string[] { "2", "ClassDecl_O" });
             //DicARegresar.Add(33, 2);
             ////34.	ClassDecl_O -> , ident ClassDecl_O
+            DicARegresar.Add(34, new string[] { "3", "ClassDecl_O" });
             //DicARegresar.Add(34, 3);
             ////35.	ClassDecl_Q -> Field ClassDecl_Q
+            DicARegresar.Add(35, new string[] { "2", "ClassDecl_Q" });
             //DicARegresar.Add(35, 2);
             ////36.	ClassDecl_Q -> ''
+            DicARegresar.Add(36, new string[] { "0", "ClassDecl_Q" });
             //DicARegresar.Add(36, 0);
             ////37.	Field -> VariableDecl 
+            DicARegresar.Add(37, new string[] { "1", "Field" });
             //DicARegresar.Add(37, 1);
             ////38.	Field -> FunctionsDecl
+            DicARegresar.Add(38, new string[] { "1", "Field" });
             //DicARegresar.Add(38, 1);
             ////39.	Field -> ConstDecl
+            DicARegresar.Add(39, new string[] { "1", "Field" });
             //DicARegresar.Add(39, 1);
             ////40.	InterfaceDecl -> interface ident { InterfaceDecl_P }
+            DicARegresar.Add(40, new string[] { "5", "InterfaceDecl" });
             //DicARegresar.Add(40, 5);
             ////41.	InterfaceDecl_P -> Prototype InterfaceDecl_P
+            DicARegresar.Add(41, new string[] { "2", "InterfaceDecl_P" });
             //DicARegresar.Add(41, 2);
             ////42.	InterfaceDecl_P -> ''
+            DicARegresar.Add(42, new string[] { "0", "InterfaceDecl_P" });
             //DicARegresar.Add(42, 0);
             ////43.	Prototype -> Type ident(Formals );
+            DicARegresar.Add(43, new string[] { "6", "Prototype" });
             //DicARegresar.Add(43, 6);
             ////44.	Prototype -> void ident(Formals );
+            DicARegresar.Add(44, new string[] { "6", "Prototype" });
             //DicARegresar.Add(44, 6);
             ////45.	StmtBlock -> { StmtBlock_P StmtBlock_R StmtBlock_O}
+            DicARegresar.Add(45, new string[] { "5", "StmtBlock" });
             //DicARegresar.Add(45, 5);
             ////46.	StmtBlock_P -> VariableDecl StmtBlock_P
+            DicARegresar.Add(46, new string[] { "2", "StmtBlock_P" });
             //DicARegresar.Add(46, 2);
             ////47.	StmtBlock_P -> ''
+            DicARegresar.Add(47, new string[] { "0", "StmtBlock_P" });
             //DicARegresar.Add(47, 0);
             ////48.	StmtBlock_R -> ConstDecl StmtBlock_R
+            DicARegresar.Add(48, new string[] { "2", "StmtBlock_R" });
             //DicARegresar.Add(48, 2);
             ////49.	StmtBlock_R -> ''
+            DicARegresar.Add(49, new string[] { "0", "StmtBlock_R" });
             //DicARegresar.Add(49, 0);
             ////50.	StmtBlock_O -> Stmt StmtBlock_O
+            DicARegresar.Add(50, new string[] { "2", "StmtBlock_O" });
             //DicARegresar.Add(50, 2);
             ////51.	StmtBlock_O -> ''
+            DicARegresar.Add(51, new string[] { "0", "StmtBlock_O" });
             //DicARegresar.Add(51, 0);
             ////52.	Stmt -> IfStmt
+            DicARegresar.Add(52, new string[] { "1", "Stmt" });
             //DicARegresar.Add(52, 1);
             ////53.	Stmt -> WhileStmt  
+            DicARegresar.Add(53, new string[] { "1", "Stmt" });
             //DicARegresar.Add(53, 1);
             ////54.	Stmt -> Stmt_P ;
+            DicARegresar.Add(54, new string[] { "2", "Stmt" });
             //DicARegresar.Add(54, 2);
             ////55.	Stmt -> ForStmt 
+            DicARegresar.Add(55, new string[] { "1", "Stmt" });
             //DicARegresar.Add(55, 1);
             ////56.	Stmt -> BreakStmt 
+            DicARegresar.Add(56, new string[] { "1", "Stmt" });
             //DicARegresar.Add(56, 1);
             ////57.	Stmt -> ReturnStmt 
+            DicARegresar.Add(57, new string[] { "1", "Stmt" });
             //DicARegresar.Add(57, 1);
             ////58.	Stmt -> PrintStmt 
+            DicARegresar.Add(58, new string[] { "1", "Stmt" });
             //DicARegresar.Add(58, 1);
             ////59.	Stmt -> StmtBlock 
+            DicARegresar.Add(59, new string[] { "1", "Stmt" });
             //DicARegresar.Add(59, 1);
             ////60.	Stmt_P -> Expr
+            DicARegresar.Add(60, new string[] { "1", "Stmt_P" });
             //DicARegresar.Add(60, 1);
             ////61.	Stmt_P -> ''
+            DicARegresar.Add(61, new string[] { "0", "Stmt_P" });
             //DicARegresar.Add(61, 0);
             ////62.	IfStmt -> if (Expr ) Stmt IfStmt_P 
+            DicARegresar.Add(62, new string[] { "6", "IfStmt" });
             //DicARegresar.Add(62, 6);
             ////63.	IfStmt_P -> else Stmt 
+            DicARegresar.Add(63, new string[] { "2", "IfStmt_P" });
             //DicARegresar.Add(63, 2);
             ////64.	IfStmt_P -> ''
+            DicARegresar.Add(64, new string[] { "0", "IfStmt_P" });
             //DicARegresar.Add(64, 0);
             ////65.	WhileStmt -> while (Expr ) Stmt
+            DicARegresar.Add(65, new string[] { "5", "WhileStmt" });
             //DicARegresar.Add(65, 5);
             ////66.	ForStmt -> for (Expr ; Expr ; Expr ) Stmt
+            DicARegresar.Add(66, new string[] { "9", "ForStmt" });
             //DicARegresar.Add(66, 9);
             ////67.	ReturnStmt -> return Expr ;
+            DicARegresar.Add(67, new string[] { "3", "ReturnStmt" });
             //DicARegresar.Add(67, 3);
             ////68.	BreakStmt -> break ;
+            DicARegresar.Add(68, new string[] { "2", "BreakStmt" });
             //DicARegresar.Add(68, 2);
             ////69.	PrintStmt -> Console.Writeline(Expr PrintStmt_P ) ;
+            DicARegresar.Add(69, new string[] { "8", "PrintStmt" });
             //DicARegresar.Add(69, 8);
             ////70.	PrintStmt_P -> , Expr PrintStmt_P
+            DicARegresar.Add(70, new string[] { "3", "PrintStmt_P" });
             //DicARegresar.Add(70, 3);
             ////71.	PrintStmt_P -> ''
+            DicARegresar.Add(71, new string[] { "0", "PrintStmt_P" });
             //DicARegresar.Add(71, 0);
             ////72.	Expr -> ident = ExprOr
+            DicARegresar.Add(72, new string[] { "3", "Expr" });
             //DicARegresar.Add(72, 3);
             ////73.	Expr -> ExprOr
+            DicARegresar.Add(73, new string[] { "1", "Expr" });
             //DicARegresar.Add(73, 1);
             ////74.	ExprOr -> ExprOr == ExprOrP
+            DicARegresar.Add(74, new string[] { "3", "ExprOrP" });
             //DicARegresar.Add(74, 3);
             ////75.	ExprOr -> ExprOrP
+            DicARegresar.Add(75, new string[] { "1", "ExprOrP" });
             //DicARegresar.Add(75, 1);
             ////76.	ExprOrP -> ExprOrP && ExprAnd
+            DicARegresar.Add(76, new string[] { "3", "ExprOrP" });
             //DicARegresar.Add(76, 3);
             ////77.	ExprOrP -> ExprAnd
+            DicARegresar.Add(77, new string[] { "1", "ExprOrP" });
             //DicARegresar.Add(77, 1);
             ////78.	ExprAnd -> ExprAnd<ExprAndP
+            DicARegresar.Add(78, new string[] { "3", "ExprAnd" });
             //DicARegresar.Add(78, 3);
             ////79.	ExprAnd -> ExprAnd <= ExprAndP
+            DicARegresar.Add(79, new string[] { "3", "ExprAnd" });
             //DicARegresar.Add(79, 3);
             ////80.	ExprAnd -> ExprAndP
+            DicARegresar.Add(80, new string[] { "1", "ExprAnd" });
             //DicARegresar.Add(80, 1);
             ////81.	ExprAndP -> ExprAndP + ExprEquals
+            DicARegresar.Add(81, new string[] { "3", "ExprAndP" });
             //DicARegresar.Add(81, 3);
             ////82.	ExprAndP -> ExprEquals
+            DicARegresar.Add(82, new string[] { "1", "ExprAndP" });
             //DicARegresar.Add(82, 1);
             ////83.	ExprEquals -> ExprEquals* ExprEqualsP
+            DicARegresar.Add(83, new string[] { "3", "ExprEquals" });
             //DicARegresar.Add(83, 3);
             ////84.	ExprEquals -> ExprEquals % ExprEqualsP
+            DicARegresar.Add(84, new string[] { "3", "ExprEquals" });
             //DicARegresar.Add(84, 3);
             ////85.	ExprEquals -> ExprEqualsP
+            DicARegresar.Add(85, new string[] { "1", "ExprEquals" });
             //DicARegresar.Add(85, 1);
             ////86.	ExprEqualsP -> - ExprComp
+            DicARegresar.Add(86, new string[] { "2", "ExprEqualsP" });
             //DicARegresar.Add(86, 2);
             ////87.	ExprEqualsP -> ! ExprComp
+            DicARegresar.Add(87, new string[] { "2", "ExprEqualsP" });
             //DicARegresar.Add(87, 2);
             ////88.	ExprEqualsP -> ExprComp
+            DicARegresar.Add(88, new string[] { "1", "ExprEqualsP" });
             //DicARegresar.Add(88, 1);
             ////89.	ExprComp -> ExprComp.ident = ExprCompP
+            DicARegresar.Add(89, new string[] { "5", "ExprCompP" });
             //DicARegresar.Add(89, 5);
             ////90.	ExprComp -> ExprComp.ident
+            DicARegresar.Add(90, new string[] { "3", "ExprCompP" });
             //DicARegresar.Add(90, 3);
             ////91.	ExprComp -> ExprCompP
+            DicARegresar.Add(91, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(91, 1);
             ////92.	ExprCompP -> (Expr )
+            DicARegresar.Add(92, new string[] { "3", "ExprCompP" });
             //DicARegresar.Add(92, 3);
             ////93.	ExprCompP -> this
+            DicARegresar.Add(93, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(93, 1);
             ////94.	ExprCompP -> ident
+            DicARegresar.Add(94, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(94, 1);
             ////95.	ExprCompP -> New (ident )
+            DicARegresar.Add(95, new string[] { "4", "ExprCompP" });
             //DicARegresar.Add(95, 4);
             ////96.	ExprCompP -> intConstant
+            DicARegresar.Add(96, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(96, 1);
             ////97.	ExprCompP -> doubleConstant
+            DicARegresar.Add(97, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(97, 1);
             ////98.	ExprCompP -> boolConstant
+            DicARegresar.Add(98, new string[] { "1", "boolConstant" });
             //DicARegresar.Add(98, 1);
             ////99.	ExprCompP -> stringConstant
+            DicARegresar.Add(99, new string[] { "1", "stringConstant" });
             //DicARegresar.Add(99, 1);
             ////100.	ExprCompP -> null
+            DicARegresar.Add(100, new string[] { "|", "ExprCompP" });
             //DicARegresar.Add(100, 1);
             //terminar aqui
 
