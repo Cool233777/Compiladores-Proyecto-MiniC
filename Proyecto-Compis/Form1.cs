@@ -40,10 +40,10 @@ namespace Proyecto_Compis
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var f = "Esto es una cadena sin divisor";
-            var div = "cadena con divisor /   ";
-            var uno = f.Split('/');
-            var dos = div.Split('/');
+            //var f = "Esto es una cadena sin divisor";
+            //var div = "cadena con divisor /   ";
+            //var uno = f.Split('/');
+            //var dos = div.Split('/');
             Analizador_Lexico.NuevaReglaDeTokens(@"\s+", "ESPACIO", true);
             Analizador_Lexico.NuevaReglaDeTokens(@"\b[_a-zA-Z](\w){0,24}\b", "IDENTIFICADOR");
             Analizador_Lexico.NuevaReglaDeTokens("\".*?\"", "CADENA");
@@ -64,7 +64,7 @@ namespace Proyecto_Compis
         {
             foreach (var token in Analizador_Lexico.Tokens(Texto_A_Compilar))
             {
-                while (token.Nombre != "COMENTARIO_SIMPLE" || token.Nombre != "COMENTARIO_MULTILINEA")
+                if (token.Nombre != "COMENTARIO_SIMPLE" || token.Nombre != "COMENTARIO_MULTILINEA")
                 {
                     if (token.Nombre == "IDENTIFICADOR")
                     {
