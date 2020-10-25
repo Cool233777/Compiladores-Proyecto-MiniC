@@ -17,6 +17,7 @@ namespace Proyecto_Compis
         public static Queue<PropiedadesDePalabras> CADENA = new Queue<PropiedadesDePalabras>();
         public static string ACCION = "";
         public static Dictionary<int, string[]> DIC_DE_NO_TERMINALES;
+        public static bool YA_ENCONTRE_UN_DESPLAZAMIENTO = false;
 
         public AnalizadorSintactico(List<PropiedadesDePalabras> Tokns)
         {
@@ -24,6 +25,8 @@ namespace Proyecto_Compis
             {
                 CADENA.Enqueue(item);
             }
+            PropiedadesDePalabras Dolar = new PropiedadesDePalabras("ESPECIAL", "$", 0,0,1);
+            CADENA.Enqueue(Dolar);
         }
 
         public void CrearDicNoTerminales()
@@ -56,7 +59,7 @@ namespace Proyecto_Compis
             DicARegresar.Add(8, new string[] { "2", "VariableDecl" });
             //DicARegresar.Add(8, 2);
             ////9.Variable> Type ident
-            DicARegresar.Add(9, new string[] { "1", "Variable" });
+            DicARegresar.Add(9, new string[] { "2", "Variable" });
             //DicARegresar.Add(9, 2);
             ////10. ConstDecl-> const ConstType ident ;
             DicARegresar.Add(10, new string[] { "4", "ConstDecl" });
@@ -338,7 +341,7 @@ namespace Proyecto_Compis
         public void Crear_Tabla()
         {
             CrearDicNoTerminales();
-            var Simbolos = new string[89] { ";", "id", "const", "int", "double", "bool", "string", "[]", "(", ")", "void", ",", "class", "{", "}", ":", "interface", "if", "else", "while", "for", "return", "break", "Console", ".", "WriteLine", "=", "==", "&&", "<", "<=", "+", "*", "%", "-", "!", "this", "New", "intConstant", "doubleConstant", "boolConstant", "stringConstant", "null", "$", "S'", "Program", "Decl", "VariableDecl", "Variable", "ConstDecl", "ConstType", "Type", "Type_P", "Type_R", "FunctionDecl", "Formals", "Formals_P", "ClassDecl", "ClassDecl_P", "ClassDecl_R", "ClassDecl_O", "ClassDecl_Q", "Field", "InterfaceDecl", "InterfaceDecl_P", "Prototype", "StmtBlock", "StmtBlock_P", "StmtBlock_R", "StmtBlock_O", "Stmt", "Stmt_P", "IfStmt", "IfStmt_P", "WhileStmt", "ForStmt", "ReturnStmt", "BreakStmt", "PrintStmt", "PrintStmt_P", "Expr", "ExprOr", "ExprOrP", "ExprAnd", "ExprAndP", "ExprEquals", "ExprEqualsP", "ExprComp", "ExprCompP" };
+            var Simbolos = new string[89] { ";", "id", "const", "int", "double", "bool", "string", "[]", "(", ")", "void", ",", "class", "{", "}", ":", "interface", "if", "else", "while", "for", "return", "break", "Console", ".", "WriteLine", "=", "==", "&&", "<", "<=", "+", "*", "%", "-", "!", "this", "New", "intConstant", "doubleConstant", "boolConstant", "stringConstant", "null", "$", "S'", "Program", "Decl", "VariableDecl", "Variable", "ConstDecl", "ConstType", "Type", "Type_P", "Type_R", "FunctionsDecl", "Formals", "Formals_P", "ClassDecl", "ClassDecl_P", "ClassDecl_R", "ClassDecl_O", "ClassDecl_Q", "Field", "InterfaceDecl", "InterfaceDecl_P", "Prototype", "StmtBlock", "StmtBlock_P", "StmtBlock_R", "StmtBlock_O", "Stmt", "Stmt_P", "IfStmt", "IfStmt_P", "WhileStmt", "ForStmt", "ReturnStmt", "BreakStmt", "PrintStmt", "PrintStmt_P", "Expr", "ExprOr", "ExprOrP", "ExprAnd", "ExprAndP", "ExprEquals", "ExprEqualsP", "ExprComp", "ExprCompP" };
             //var Archivo = new FileStream(@"D:\Descargas\SLR.txt", FileMode.Open);
             var Archivo = new FileStream(Path.GetFullPath("SLR.txt"), FileMode.Open);
             var Lector = new StreamReader(Archivo);
@@ -363,6 +366,119 @@ namespace Proyecto_Compis
             var Devolver_Dic_De_Estado = DICCIONARIO_DE_ESTADOS.First(x => x.Key == Tope_De_Pila);
             var Devolver_Dic_De_Simbolo = Devolver_Dic_De_Estado.Value.First(x => x.Key == Cadena_A_Evaluar);
             return Devolver_Dic_De_Simbolo.Value;
+        }
+
+        public void RecursivoReducirEIrA(int EstadoADesplazarse, PropiedadesDePalabras TopeDeCadena)
+        {
+            if (!YA_ENCONTRE_UN_DESPLAZAMIENTO)
+            {
+                var Devolver_Dic_De_No_Terminal = DIC_DE_NO_TERMINALES.First(x => x.Key == EstadoADesplazarse);
+                var Numeros_A_Desapilar = int.Parse(Devolver_Dic_De_No_Terminal.Value[0]);
+                var Aux_Simbolo_Parser = SIMBOLO_PARSER;
+                if (Numeros_A_Desapilar == 0)
+                {
+                    Aux_Simbolo_Parser.Push(Devolver_Dic_De_No_Terminal.Value[1]);
+                    SIMBOLO_PARSER = Aux_Simbolo_Parser;
+                }
+                else
+                {
+                    while (Numeros_A_Desapilar > 0)//quitar los primeros simbolos, colocar en el primero el simbolo reducido y correr la lista
+                    {
+                        Aux_Simbolo_Parser.Pop();
+                        LA_PILA.Pop();
+                        Numeros_A_Desapilar--;
+                    }
+                    Aux_Simbolo_Parser.Push(Devolver_Dic_De_No_Terminal.Value[1]);
+                    SIMBOLO_PARSER = Aux_Simbolo_Parser;
+                }
+
+                //empieza IrA
+
+                var TopeDePilaIrA = LA_PILA.Peek();
+                var AccionIrA = RegresarAccion(TopeDePilaIrA, Devolver_Dic_De_No_Terminal.Value[1]);//siempre va a ser un No Terminal
+                var AccionConLetra = "";
+
+                LA_PILA.Push(int.Parse(AccionIrA));//agrego el numero del IrA a la pila
+                if (TopeDeCadena.Nombre == "IDENTIFICADOR")//quiere decir que viene un id
+                {
+                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");//pregunto si su casilla es una reduccion o desplazamiento, si es reduccion, vuelvo a llamar a este método, si no, termino
+                    var SplitSinDivisor = AccionConLetra.Split('/');
+                    var SplitESE = AccionConLetra.Split('s');
+                    var SplitR = AccionConLetra.Split('r');
+                    if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto
+                    {
+
+                    }
+                    else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
+                    {
+
+                        RecursivoReducirEIrA(int.Parse(SplitR[1]), TopeDeCadena);
+
+                    }
+                    else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento//CADENA.Dequeue
+                    {
+                        YA_ENCONTRE_UN_DESPLAZAMIENTO = true;
+                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                        SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);
+                        CADENA.Dequeue();
+                        //var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                        //LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                        //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
+                        //CADENA.Dequeue();//quito de entrada
+                        //                 //var Devolver_Dic_De_No_Terminal = DICCIONARIO_DE_ESTADOS.First(x => x.Key ==  Estado_A_Desplazarse);
+                    }
+                    else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
+                    {
+
+                    }
+                    else // aceptar
+                    {
+                        var er = "acpetar";
+                    }
+                }
+                else//viene una palabra reconocible
+                {
+                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), TopeDeCadena.Cadena);//pregunto si su casilla es una reduccion o desplazamiento, si es reduccion, vuelvo a llamar a este método, si no, termino
+                    var SplitSinDivisor = AccionConLetra.Split('/');
+                    var SplitESE = AccionConLetra.Split('s');
+                    var SplitR = AccionConLetra.Split('r');
+                    if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto
+                    {
+
+                    }
+                    else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
+                    {
+
+                        RecursivoReducirEIrA(int.Parse(SplitR[1]), TopeDeCadena);
+
+                    }
+                    else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento//CADENA.dequeue
+                    {
+                        YA_ENCONTRE_UN_DESPLAZAMIENTO = true;
+                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                        SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);
+                        CADENA.Dequeue();
+                        //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
+                        //CADENA.Dequeue();//quito de entrada
+                        //var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                        //LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                        //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
+                        //CADENA.Dequeue();//quito de entrada
+                        //                 //var Devolver_Dic_De_No_Terminal = DICCIONARIO_DE_ESTADOS.First(x => x.Key ==  Estado_A_Desplazarse);
+                    } 
+                    else if (AccionConLetra=="n")//quiere decir que fue error de sintaxis
+                    {
+
+                    }
+                    else // aceptar
+                    {
+                        var h = "aceptar";
+                    }
+                }
+            }
+            YA_ENCONTRE_UN_DESPLAZAMIENTO = false;
         }
 
         public void Tabla_De_Parser()
@@ -398,19 +514,9 @@ namespace Proyecto_Compis
                 }
                 else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
                 {
-                    var Estado_A_Desplazarse = int.Parse(SplitR[1]);
-                    var Devolver_Dic_De_No_Terminal = DIC_DE_NO_TERMINALES.First(x => x.Key == Estado_A_Desplazarse);
-                    var Numeros_A_Desapilar = int.Parse(Devolver_Dic_De_No_Terminal.Value[0]);
-                    var Aux_Simbolo_Parser = SIMBOLO_PARSER;
-                    while (Numeros_A_Desapilar > 0)//quitar los primeros simbolos, colocar en el primero el simbolo reducido y correr la lista
-                    {
-                        Aux_Simbolo_Parser.Pop();
-                        LA_PILA.Pop();
-                        Numeros_A_Desapilar--;
-                    }
-                    
-                    Aux_Simbolo_Parser.Push(Devolver_Dic_De_No_Terminal.Value[1]);
-                    SIMBOLO_PARSER = Aux_Simbolo_Parser;
+
+                    RecursivoReducirEIrA(int.Parse(SplitR[1]), Cadena_A_Evaluar);//como es primera iteracion, no le paso nada (hipotesis)
+
                 }
                 else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento
                 {
@@ -442,8 +548,8 @@ namespace Proyecto_Compis
             //Si es una reducción, se desapila estados como simbolos tenga el lado derecho la produccion de la reduccion
             //Reducir los simbolos(al papa de la produccion)
             //Tope de pila y tomar el simbolo No Terminal reducido, la accion seria el IrA
-            //apilar el IrA y vuelvo a preguntar el tope de pila con la cadena
-            //repetir
+            //apilar el IrA y vuelvo a preguntar el tope de pila con el símbolo reducido
+            //repetir***
 
             //si es n, es error de sintaxis
 
