@@ -25,7 +25,7 @@ namespace Proyecto_Compis
             {
                 CADENA.Enqueue(item);
             }
-            PropiedadesDePalabras Dolar = new PropiedadesDePalabras("ESPECIAL", "$", 0,0,1);
+            PropiedadesDePalabras Dolar = new PropiedadesDePalabras("ESPECIAL", "$", 0, 0, 1);
             CADENA.Enqueue(Dolar);
         }
 
@@ -467,8 +467,8 @@ namespace Proyecto_Compis
                         //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
                         //CADENA.Dequeue();//quito de entrada
                         //                 //var Devolver_Dic_De_No_Terminal = DICCIONARIO_DE_ESTADOS.First(x => x.Key ==  Estado_A_Desplazarse);
-                    } 
-                    else if (AccionConLetra=="n")//quiere decir que fue error de sintaxis
+                    }
+                    else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
                     {
 
                     }
@@ -495,7 +495,7 @@ namespace Proyecto_Compis
             foreach (var Cadena_A_Evaluar in Aux_Lista_De_Cadena)
             {
 
-                var AccionConLetra = "";
+                var AccionConLetra = string.Empty;
                 if (Cadena_A_Evaluar.Nombre == "IDENTIFICADOR")
                 {
                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
@@ -510,7 +510,45 @@ namespace Proyecto_Compis
                 var SplitR = AccionConLetra.Split('r');
                 if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto
                 {
+                    //primero me voy a el desplazamineto, luego a la reduccion 
+                    bool Error_Primer_Camino = false;
+                    bool Error_Segundo_Camino = false;
+                    if (!Error_Primer_Camino)//desplazar
+                    {
+                        SplitESE = SplitSinDivisor[0].Split('s');
+                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                        SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
+                        CADENA.Dequeue();//quito de entrada
+                        //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
+                        AccionConLetra = string.Empty;
 
+                        if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                        }
+                        else
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Nombre);
+                        }
+
+                        if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
+                        {
+                            Error_Primer_Camino = true;
+                        }
+                        //else no hago nada
+                    }
+                    if (!Error_Segundo_Camino)//reducir
+                    {
+                        SplitR = SplitSinDivisor[1].Split('r');
+                        RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
+                        //ver este mas tarde porque no entendi bien lo del error para el redux
+                    }
+                    if (Error_Primer_Camino && Error_Segundo_Camino)//Error de sintaxis, ya probe con ambos caminos
+                    {
+
+                    }
+                    //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
                 }
                 else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
                 {
