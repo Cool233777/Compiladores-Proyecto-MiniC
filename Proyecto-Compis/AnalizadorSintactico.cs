@@ -18,6 +18,8 @@ namespace Proyecto_Compis
         public static string ACCION = "";
         public static Dictionary<int, string[]> DIC_DE_NO_TERMINALES;
         public static bool YA_ENCONTRE_UN_DESPLAZAMIENTO = false;
+        bool ERROR_PRIMER_CAMINO = false;
+        bool ERROR_SEGUNDO_CAMINO = false;
 
         public AnalizadorSintactico(List<PropiedadesDePalabras> Tokns)
         {
@@ -397,84 +399,167 @@ namespace Proyecto_Compis
                 var TopeDePilaIrA = LA_PILA.Peek();
                 var AccionIrA = RegresarAccion(TopeDePilaIrA, Devolver_Dic_De_No_Terminal.Value[1]);//siempre va a ser un No Terminal
                 var AccionConLetra = "";
-
-                LA_PILA.Push(int.Parse(AccionIrA));//agrego el numero del IrA a la pila
-                if (TopeDeCadena.Nombre == "IDENTIFICADOR")//quiere decir que viene un id
+                if (AccionIrA != "n")
                 {
-                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");//pregunto si su casilla es una reduccion o desplazamiento, si es reduccion, vuelvo a llamar a este método, si no, termino
-                    var SplitSinDivisor = AccionConLetra.Split('/');
-                    var SplitESE = AccionConLetra.Split('s');
-                    var SplitR = AccionConLetra.Split('r');
-                    if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto
+                    LA_PILA.Push(int.Parse(AccionIrA));//agrego el numero del IrA a la pila
+                    if (TopeDeCadena.Nombre == "IDENTIFICADOR")//quiere decir que viene un id
                     {
+                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");//pregunto si su casilla es una reduccion o desplazamiento, si es reduccion, vuelvo a llamar a este método, si no, termino
+                        var SplitSinDivisor = AccionConLetra.Split('/');
+                        var SplitESE = AccionConLetra.Split('s');
+                        var SplitR = AccionConLetra.Split('r');
+                        if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto
+                        {
+                            //primero me voy a el desplazamineto, luego a la reduccion 
+                            bool Error_Primer_Camino = false;
+                            bool Error_Segundo_Camino = false;
+                            ERROR_PRIMER_CAMINO = false;
+                            ERROR_SEGUNDO_CAMINO = false;
+                            if (!Error_Primer_Camino)//desplazar
+                            {
+                                SplitESE = SplitSinDivisor[0].Split('s');
+                                var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                CADENA.Dequeue();//quito de entrada
+                                                 //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
+                                AccionConLetra = string.Empty;
 
-                    }
-                    else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
-                    {
+                                if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                                }
+                                else
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Nombre);
+                                }
 
-                        RecursivoReducirEIrA(int.Parse(SplitR[1]), TopeDeCadena);
+                                if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
+                                {
+                                    Error_Primer_Camino = true;
+                                    ERROR_PRIMER_CAMINO = true;
+                                }
+                                //else no hago nada
+                            }
+                            if (!Error_Segundo_Camino)//reducir
+                            {
+                                SplitR = SplitSinDivisor[1].Split('r');
+                                RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
+                            }
+                            if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
+                            {
+                                //recuperarse
+                            }
+                            //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
+                        }
+                        else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
+                        {
 
-                    }
-                    else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento//CADENA.Dequeue
-                    {
-                        YA_ENCONTRE_UN_DESPLAZAMIENTO = true;
-                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
-                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
-                        SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);
-                        CADENA.Dequeue();
-                        //var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
-                        //LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
-                        //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
-                        //CADENA.Dequeue();//quito de entrada
-                        //                 //var Devolver_Dic_De_No_Terminal = DICCIONARIO_DE_ESTADOS.First(x => x.Key ==  Estado_A_Desplazarse);
-                    }
-                    else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
-                    {
+                            RecursivoReducirEIrA(int.Parse(SplitR[1]), TopeDeCadena);
 
+                        }
+                        else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento//CADENA.Dequeue
+                        {
+                            YA_ENCONTRE_UN_DESPLAZAMIENTO = true;
+                            var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                            LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                            SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);
+                            CADENA.Dequeue();
+                        }
+                        else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
+                        {
+
+                        }
+                        else // aceptar
+                        {
+                            var er = "acpetar";
+                        }
                     }
-                    else // aceptar
+                    else//viene una palabra reconocible
                     {
-                        var er = "acpetar";
+                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), TopeDeCadena.Cadena);//pregunto si su casilla es una reduccion o desplazamiento, si es reduccion, vuelvo a llamar a este método, si no, termino
+                        var SplitSinDivisor = AccionConLetra.Split('/');
+                        var SplitESE = AccionConLetra.Split('s');
+                        var SplitR = AccionConLetra.Split('r');
+                        if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto, dado que venia de algo que no es ID
+                        {
+                            //primero me voy a el desplazamineto, luego a la reduccion 
+                            bool Error_Primer_Camino = false;
+                            bool Error_Segundo_Camino = false;
+                            ERROR_PRIMER_CAMINO = false;
+                            ERROR_SEGUNDO_CAMINO = false;
+                            if (!Error_Primer_Camino)//desplazar
+                            {
+                                SplitESE = SplitSinDivisor[0].Split('s');
+                                var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                CADENA.Dequeue();//quito de entrada
+                                                 //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
+                                AccionConLetra = string.Empty;
+
+                                if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                                }
+                                else
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Nombre);
+                                }
+
+                                if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
+                                {
+                                    Error_Primer_Camino = true;
+                                    ERROR_PRIMER_CAMINO = true;
+                                }
+                                //else no hago nada
+                            }
+                            if (!Error_Segundo_Camino)//reducir
+                            {
+                                SplitR = SplitSinDivisor[1].Split('r');
+                                RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
+                            }
+                            if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
+                            {
+                                //recuperarse
+                            }
+                            //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
+                        }
+                        else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
+                        {
+
+                            RecursivoReducirEIrA(int.Parse(SplitR[1]), TopeDeCadena);
+
+                        }
+                        else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento//CADENA.dequeue
+                        {
+                            YA_ENCONTRE_UN_DESPLAZAMIENTO = true;
+                            var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                            LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                            SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);
+                            CADENA.Dequeue();
+                        }
+                        else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
+                        {
+
+                        }
+                        else // aceptar
+                        {
+                            var h = "aceptar";
+                        }
                     }
                 }
-                else//viene una palabra reconocible
+                else
                 {
-                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), TopeDeCadena.Cadena);//pregunto si su casilla es una reduccion o desplazamiento, si es reduccion, vuelvo a llamar a este método, si no, termino
-                    var SplitSinDivisor = AccionConLetra.Split('/');
-                    var SplitESE = AccionConLetra.Split('s');
-                    var SplitR = AccionConLetra.Split('r');
-                    if (SplitSinDivisor.Length > 1)//quiere decir que tiene conflicto
+                    //encontre un error luego de entrar a una reduccion de un conflicto... cierto? puede ser si no pues ya se que es error
+                    //tengo que seguir compilando, pero tengo que preguntar si venia de un conflicto para hacer true el error segundo
+                    if (ERROR_PRIMER_CAMINO)
+                    {
+                        ERROR_SEGUNDO_CAMINO = true;
+                    }
+                    else // error de sintaxis, codigo mal escrito
                     {
 
-                    }
-                    else if (SplitR.Length > 1)//quiere decir que es una reduccion lo que viene
-                    {
-
-                        RecursivoReducirEIrA(int.Parse(SplitR[1]), TopeDeCadena);
-
-                    }
-                    else if (SplitESE.Length > 1)//quiere decir que viene un desplazamiento//CADENA.dequeue
-                    {
-                        YA_ENCONTRE_UN_DESPLAZAMIENTO = true;
-                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
-                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
-                        SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);
-                        CADENA.Dequeue();
-                        //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
-                        //CADENA.Dequeue();//quito de entrada
-                        //var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
-                        //LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
-                        //SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
-                        //CADENA.Dequeue();//quito de entrada
-                        //                 //var Devolver_Dic_De_No_Terminal = DICCIONARIO_DE_ESTADOS.First(x => x.Key ==  Estado_A_Desplazarse);
-                    }
-                    else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
-                    {
-
-                    }
-                    else // aceptar
-                    {
-                        var h = "aceptar";
                     }
                 }
             }
@@ -513,6 +598,8 @@ namespace Proyecto_Compis
                     //primero me voy a el desplazamineto, luego a la reduccion 
                     bool Error_Primer_Camino = false;
                     bool Error_Segundo_Camino = false;
+                    ERROR_PRIMER_CAMINO = false;
+                    ERROR_SEGUNDO_CAMINO = false;
                     if (!Error_Primer_Camino)//desplazar
                     {
                         SplitESE = SplitSinDivisor[0].Split('s');
@@ -535,6 +622,7 @@ namespace Proyecto_Compis
                         if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
                         {
                             Error_Primer_Camino = true;
+                            ERROR_PRIMER_CAMINO = true;
                         }
                         //else no hago nada
                     }
@@ -542,11 +630,10 @@ namespace Proyecto_Compis
                     {
                         SplitR = SplitSinDivisor[1].Split('r');
                         RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
-                        //ver este mas tarde porque no entendi bien lo del error para el redux
                     }
-                    if (Error_Primer_Camino && Error_Segundo_Camino)//Error de sintaxis, ya probe con ambos caminos
+                    if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                     {
-
+                        //recuperarse
                     }
                     //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
                 }
