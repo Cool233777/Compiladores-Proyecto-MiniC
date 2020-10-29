@@ -412,7 +412,6 @@ namespace Proyecto_Compis
                         {
                             //primero me voy a el desplazamineto, luego a la reduccion 
                             bool Error_Primer_Camino = false;
-                            bool Error_Segundo_Camino = false;
                             ERROR_PRIMER_CAMINO = false;
                             ERROR_SEGUNDO_CAMINO = false;
                             if (!Error_Primer_Camino)//desplazar
@@ -429,9 +428,25 @@ namespace Proyecto_Compis
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                                 }
+                                else if (CADENA.Peek().Nombre == "NUMERO")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "DECIMAL")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "CADENA")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                                }
+                                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                                }
                                 else
                                 {
-                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Nombre);
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
                                 }
 
                                 if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
@@ -441,7 +456,7 @@ namespace Proyecto_Compis
                                 }
                                 //else no hago nada
                             }
-                            if (!Error_Segundo_Camino)//reducir
+                            if (Error_Primer_Camino)//reducir
                             {
                                 SplitR = SplitSinDivisor[1].Split('r');
                                 RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
@@ -449,6 +464,52 @@ namespace Proyecto_Compis
                             if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                             {
                                 //recuperarse
+                                while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                                {
+                                    LA_PILA.Pop();
+                                    SIMBOLO_PARSER.Pop();
+                                }
+                                while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                                {
+                                    if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                                    }
+                                    else if (CADENA.Peek().Nombre == "NUMERO")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                                    }
+                                    else if (CADENA.Peek().Nombre == "DECIMAL")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                                    }
+                                    else if (CADENA.Peek().Nombre == "CADENA")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                                    }
+                                    else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                                    }
+                                    else
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                    }
+                                    SplitESE = AccionConLetra.Split('s');
+                                    if (SplitESE.Length > 1)
+                                    {
+                                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                        SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                        CADENA.Dequeue();//quito de entrada
+                                    }
+                                    else
+                                    {
+                                        CADENA.Dequeue();//quito de entrada
+                                        SIMBOLO_PARSER.Pop();
+                                        break;
+                                    }
+                                }
                             }
                             //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
                         }
@@ -468,7 +529,52 @@ namespace Proyecto_Compis
                         }
                         else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
                         {
-
+                            while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                            {
+                                LA_PILA.Pop();
+                                SIMBOLO_PARSER.Pop();
+                            }
+                            while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                            {
+                                if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                                }
+                                else if (CADENA.Peek().Nombre == "NUMERO")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "DECIMAL")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "CADENA")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                                }
+                                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                                }
+                                else
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                }
+                                SplitESE = AccionConLetra.Split('s');
+                                if (SplitESE.Length > 1)
+                                {
+                                    var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                    LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                    SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                    CADENA.Dequeue();//quito de entrada
+                                }
+                                else
+                                {
+                                    CADENA.Dequeue();//quito de entrada
+                                    SIMBOLO_PARSER.Pop();
+                                    break;
+                                }
+                            }
                         }
                         else // aceptar
                         {
@@ -485,7 +591,6 @@ namespace Proyecto_Compis
                         {
                             //primero me voy a el desplazamineto, luego a la reduccion 
                             bool Error_Primer_Camino = false;
-                            bool Error_Segundo_Camino = false;
                             ERROR_PRIMER_CAMINO = false;
                             ERROR_SEGUNDO_CAMINO = false;
                             if (!Error_Primer_Camino)//desplazar
@@ -502,9 +607,25 @@ namespace Proyecto_Compis
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                                 }
+                                else if (CADENA.Peek().Nombre == "NUMERO")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "DECIMAL")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "CADENA")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                                }
+                                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                                }
                                 else
                                 {
-                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Nombre);
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
                                 }
 
                                 if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
@@ -514,7 +635,7 @@ namespace Proyecto_Compis
                                 }
                                 //else no hago nada
                             }
-                            if (!Error_Segundo_Camino)//reducir
+                            if (Error_Primer_Camino)//reducir
                             {
                                 SplitR = SplitSinDivisor[1].Split('r');
                                 RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
@@ -522,6 +643,52 @@ namespace Proyecto_Compis
                             if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                             {
                                 //recuperarse
+                                while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                                {
+                                    LA_PILA.Pop();
+                                    SIMBOLO_PARSER.Pop();
+                                }
+                                while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                                {
+                                    if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                                    }
+                                    else if (CADENA.Peek().Nombre == "NUMERO")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                                    }
+                                    else if (CADENA.Peek().Nombre == "DECIMAL")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                                    }
+                                    else if (CADENA.Peek().Nombre == "CADENA")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                                    }
+                                    else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                                    }
+                                    else
+                                    {
+                                        AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                    }
+                                    var SplitESE = AccionConLetra.Split('s');
+                                    if (SplitESE.Length > 1)
+                                    {
+                                        var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                        LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                        SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                        CADENA.Dequeue();//quito de entrada
+                                    }
+                                    else
+                                    {
+                                        CADENA.Dequeue();//quito de entrada
+                                        SIMBOLO_PARSER.Pop();
+                                        break;
+                                    }
+                                }
                             }
                             //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
                         }
@@ -541,7 +708,52 @@ namespace Proyecto_Compis
                         }
                         else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
                         {
-
+                            while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                            {
+                                LA_PILA.Pop();
+                                SIMBOLO_PARSER.Pop();
+                            }
+                            while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                            {
+                                if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                                }
+                                else if (CADENA.Peek().Nombre == "NUMERO")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "DECIMAL")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                                }
+                                else if (CADENA.Peek().Nombre == "CADENA")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                                }
+                                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                                }
+                                else
+                                {
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                }
+                                var SplitESE = AccionConLetra.Split('s');
+                                if (SplitESE.Length > 1)
+                                {
+                                    var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                    LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                    SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                    CADENA.Dequeue();//quito de entrada
+                                }
+                                else
+                                {
+                                    CADENA.Dequeue();//quito de entrada
+                                    SIMBOLO_PARSER.Pop();
+                                    break;
+                                }
+                            }
                         }
                         else // aceptar
                         {
@@ -559,7 +771,53 @@ namespace Proyecto_Compis
                     }
                     else // error de sintaxis, codigo mal escrito
                     {
-
+                        //recuperarse
+                        while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                        {
+                            LA_PILA.Pop();
+                            SIMBOLO_PARSER.Pop();
+                        }
+                        while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                        {
+                            if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                            }
+                            else if (CADENA.Peek().Nombre == "NUMERO")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                            }
+                            else if (CADENA.Peek().Nombre == "DECIMAL")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                            }
+                            else if (CADENA.Peek().Nombre == "CADENA")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                            }
+                            else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                            }
+                            else
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                            }
+                            var SplitESE = AccionConLetra.Split('s');
+                            if (SplitESE.Length > 1)
+                            {
+                                var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
+                                CADENA.Dequeue();//quito de entrada
+                            }
+                            else
+                            {
+                                CADENA.Dequeue();//quito de entrada
+                                SIMBOLO_PARSER.Pop();
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -585,6 +843,22 @@ namespace Proyecto_Compis
                 {
                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                 }
+                else if (Cadena_A_Evaluar.Nombre == "NUMERO")
+                {
+                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                }
+                else if (Cadena_A_Evaluar.Nombre == "DECIMAL")
+                {
+                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                }
+                else if (Cadena_A_Evaluar.Nombre == "CADENA")
+                {
+                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                }
+                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                {
+                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                }
                 else
                 {
                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), Cadena_A_Evaluar.Cadena);
@@ -597,7 +871,6 @@ namespace Proyecto_Compis
                 {
                     //primero me voy a el desplazamineto, luego a la reduccion 
                     bool Error_Primer_Camino = false;
-                    bool Error_Segundo_Camino = false;
                     ERROR_PRIMER_CAMINO = false;
                     ERROR_SEGUNDO_CAMINO = false;
                     if (!Error_Primer_Camino)//desplazar
@@ -614,9 +887,25 @@ namespace Proyecto_Compis
                         {
                             AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                         }
+                        else if (Cadena_A_Evaluar.Nombre == "NUMERO")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                        }
+                        else if (Cadena_A_Evaluar.Nombre == "DECIMAL")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                        }
+                        else if (Cadena_A_Evaluar.Nombre == "CADENA")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                        }
+                        else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                        }
                         else
                         {
-                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Nombre);
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
                         }
 
                         if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
@@ -626,7 +915,7 @@ namespace Proyecto_Compis
                         }
                         //else no hago nada
                     }
-                    if (!Error_Segundo_Camino)//reducir
+                    if (Error_Primer_Camino)//reducir
                     {
                         SplitR = SplitSinDivisor[1].Split('r');
                         RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
@@ -634,6 +923,52 @@ namespace Proyecto_Compis
                     if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                     {
                         //recuperarse
+                        while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                        {
+                            LA_PILA.Pop();
+                            SIMBOLO_PARSER.Pop();
+                        }
+                        while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                        {
+                            if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                            }
+                            else if (Cadena_A_Evaluar.Nombre == "NUMERO")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                            }
+                            else if (Cadena_A_Evaluar.Nombre == "DECIMAL")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                            }
+                            else if (Cadena_A_Evaluar.Nombre == "CADENA")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                            }
+                            else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                            }
+                            else
+                            {
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                            }
+                            SplitESE = AccionConLetra.Split('s');
+                            if (SplitESE.Length > 1)
+                            {
+                                var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                                LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                                SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
+                                CADENA.Dequeue();//quito de entrada
+                            }
+                            else
+                            {
+                                CADENA.Dequeue();//quito de entrada
+                                SIMBOLO_PARSER.Pop();
+                                break;
+                            }
+                        }
                     }
                     //aqui termina la verificación de conflictos de la tabla de análisis, colocar también en el método recursivo
                 }
@@ -653,31 +988,54 @@ namespace Proyecto_Compis
                 }
                 else//quiere decir que fue error de sintaxis
                 {
-
+                    while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
+                    {
+                        LA_PILA.Pop();
+                        SIMBOLO_PARSER.Pop();
+                    }
+                    while (AccionConLetra == "n")// que pase de cadena y de accion hasta de reconozca algo con el estado 0
+                    {
+                        if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                        }
+                        else if (Cadena_A_Evaluar.Nombre == "NUMERO")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+                        }
+                        else if (Cadena_A_Evaluar.Nombre == "DECIMAL")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
+                        }
+                        else if (Cadena_A_Evaluar.Nombre == "CADENA")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
+                        }
+                        else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
+                        }
+                        else
+                        {
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                        }
+                        SplitESE = AccionConLetra.Split('s');
+                        if (SplitESE.Length > 1)
+                        {
+                            var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
+                            LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
+                            SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
+                            CADENA.Dequeue();//quito de entrada
+                        }
+                        else
+                        {
+                            CADENA.Dequeue();//quito de entrada
+                            SIMBOLO_PARSER.Pop();
+                            break;
+                        }
+                    }
                 }
-
             }
-            //manejo de errores: seguir compilando hasta encontrar un ; , { , } , )
-
-            //En las columnas va: Iteracion, Tope de pila, Simbolo, Cadena, Acción
-            //Leo primer token
-            //Voy al primer estado de la pila(Guardar)
-
-            //me voy a la tabla de análisis con el numero de la pila guardado***
-            //Verificar la acción
-            //Si es un desplazamiento, Ej: D5, Guardo el 5
-            //Se apila el numero en la PILA
-            //El primer token pasa al simbolo
-            //repetir
-
-            //Si es una reducción, se desapila estados como simbolos tenga el lado derecho la produccion de la reduccion
-            //Reducir los simbolos(al papa de la produccion)
-            //Tope de pila y tomar el simbolo No Terminal reducido, la accion seria el IrA
-            //apilar el IrA y vuelvo a preguntar el tope de pila con el símbolo reducido
-            //repetir***
-
-            //si es n, es error de sintaxis
-
         }
 
         public void Ejecutar_Analizador()
