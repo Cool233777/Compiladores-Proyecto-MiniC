@@ -60,16 +60,19 @@ namespace Proyecto_Compis
         {
             foreach (var token in Analizador_Lexico.Tokens(Texto_A_Compilar))
             {
-                if (token.Nombre != "COMENTARIO_SIMPLE" || token.Nombre != "COMENTARIO_MULTILINEA")
+                if (token.Nombre != "COMENTARIO_SIMPLE")
                 {
-                    if (token.Nombre == "IDENTIFICADOR")
+                    if (token.Nombre != "COMENTARIO_MULTILINEA")
                     {
-                        if (Lista_Reservadas.Contains(token.Cadena))
+                        if (token.Nombre == "IDENTIFICADOR")
                         {
-                            token.Nombre = "RESERVADO";
+                            if (Lista_Reservadas.Contains(token.Cadena))
+                            {
+                                token.Nombre = "RESERVADO";
+                            }
                         }
+                        Lista_Tokens.Add(token);
                     }
-                    Lista_Tokens.Add(token);
                 }
             }
         }
@@ -78,24 +81,14 @@ namespace Proyecto_Compis
         {
             AnalizarCodigo();
             AnalizadorSintactico sintax = new AnalizadorSintactico(Lista_Tokens);
-            sintax.Ejecutar_Analizador();
-            //using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
-            //{
-            //    using (var escritor = new StreamWriter(Archivo_Salida))
-            //    {
-            //        foreach (var item in Lista_Tokens)
-            //        {
-            //            if (item.Nombre == "ERROR")
-            //            {
-            //                escritor.WriteLine("// Error en la Linea: " + item.Linea + ". // Caracter no reconocido: " + item.Cadena+"\n");
-            //            }
-            //            else
-            //            {
-            //                escritor.WriteLine(item.Cadena + "      Linea: " + item.Linea + ", Columna: " + item.Columna + "-" + ((item.Cadena.Length + item.Columna)-1) + ", es:     " + item.Nombre+"\n");
-            //            }
-            //        }
-            //    }
-            //}
+           var Resultado_De_Sintaxis = sintax.Ejecutar_Analizador();
+            using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
+            {
+                using (var escritor = new StreamWriter(Archivo_Salida))
+                {
+                    escritor.Write(Resultado_De_Sintaxis);
+                }
+            }
         }
     }
 }

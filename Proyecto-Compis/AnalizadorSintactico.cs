@@ -20,6 +20,8 @@ namespace Proyecto_Compis
         public static bool YA_ENCONTRE_UN_DESPLAZAMIENTO = false;
         bool ERROR_PRIMER_CAMINO = false;
         bool ERROR_SEGUNDO_CAMINO = false;
+        public static bool SINTAXIS_CORRECTA = false;
+        public static string MENSAJE_RESULTANTE = string.Empty;
 
         public AnalizadorSintactico(List<PropiedadesDePalabras> Tokns)
         {
@@ -255,10 +257,10 @@ namespace Proyecto_Compis
             DicARegresar.Add(73, new string[] { "1", "Expr" });
             //DicARegresar.Add(73, 1);
             ////74.	ExprOr -> ExprOr == ExprOrP
-            DicARegresar.Add(74, new string[] { "3", "ExprOrP" });
+            DicARegresar.Add(74, new string[] { "3", "ExprOr" });
             //DicARegresar.Add(74, 3);
             ////75.	ExprOr -> ExprOrP
-            DicARegresar.Add(75, new string[] { "1", "ExprOrP" });
+            DicARegresar.Add(75, new string[] { "1", "ExprOr" });
             //DicARegresar.Add(75, 1);
             ////76.	ExprOrP -> ExprOrP && ExprAnd
             DicARegresar.Add(76, new string[] { "3", "ExprOrP" });
@@ -300,13 +302,13 @@ namespace Proyecto_Compis
             DicARegresar.Add(88, new string[] { "1", "ExprEqualsP" });
             //DicARegresar.Add(88, 1);
             ////89.	ExprComp -> ExprComp.ident = ExprCompP
-            DicARegresar.Add(89, new string[] { "5", "ExprCompP" });
+            DicARegresar.Add(89, new string[] { "5", "ExprComp" });
             //DicARegresar.Add(89, 5);
             ////90.	ExprComp -> ExprComp.ident
-            DicARegresar.Add(90, new string[] { "3", "ExprCompP" });
+            DicARegresar.Add(90, new string[] { "3", "ExprComp" });
             //DicARegresar.Add(90, 3);
             ////91.	ExprComp -> ExprCompP
-            DicARegresar.Add(91, new string[] { "1", "ExprCompP" });
+            DicARegresar.Add(91, new string[] { "1", "ExprComp" });
             //DicARegresar.Add(91, 1);
             ////92.	ExprCompP -> (Expr )
             DicARegresar.Add(92, new string[] { "3", "ExprCompP" });
@@ -327,10 +329,10 @@ namespace Proyecto_Compis
             DicARegresar.Add(97, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(97, 1);
             ////98.	ExprCompP -> boolConstant
-            DicARegresar.Add(98, new string[] { "1", "boolConstant" });
+            DicARegresar.Add(98, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(98, 1);
             ////99.	ExprCompP -> stringConstant
-            DicARegresar.Add(99, new string[] { "1", "stringConstant" });
+            DicARegresar.Add(99, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(99, 1);
             ////100.	ExprCompP -> null
             DicARegresar.Add(100, new string[] { "|", "ExprCompP" });
@@ -414,55 +416,70 @@ namespace Proyecto_Compis
                             bool Error_Primer_Camino = false;
                             ERROR_PRIMER_CAMINO = false;
                             ERROR_SEGUNDO_CAMINO = false;
+                            Queue<PropiedadesDePalabras> auxCadenasDespla = new Queue<PropiedadesDePalabras>();
+                            Queue<PropiedadesDePalabras> auxCadenaRedux = new Queue<PropiedadesDePalabras>();
+                            foreach (var item in CADENA)
+                            {
+                                auxCadenaRedux.Enqueue(item);
+                                auxCadenasDespla.Enqueue(item);
+                            }
                             if (!Error_Primer_Camino)//desplazar
                             {
                                 SplitESE = SplitSinDivisor[0].Split('s');
                                 var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
                                 LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
                                 SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
-                                CADENA.Dequeue();//quito de entrada
-                                                 //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
+                                auxCadenasDespla.Dequeue();//quito de entrada
+                                                           //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
                                 AccionConLetra = string.Empty;
 
-                                if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                if (auxCadenasDespla.Peek().Nombre == "IDENTIFICADOR")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                                 }
-                                else if (CADENA.Peek().Nombre == "NUMERO")
+                                else if (auxCadenasDespla.Peek().Nombre == "NUMERO")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
                                 }
-                                else if (CADENA.Peek().Nombre == "DECIMAL")
+                                else if (auxCadenasDespla.Peek().Nombre == "DECIMAL")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
                                 }
-                                else if (CADENA.Peek().Nombre == "CADENA")
+                                else if (auxCadenasDespla.Peek().Nombre == "CADENA")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
                                 }
-                                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                else if (auxCadenasDespla.Peek().Cadena == "true" || auxCadenasDespla.Peek().Cadena == "false")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
                                 }
                                 else
                                 {
-                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), auxCadenasDespla.Peek().Cadena);
                                 }
 
                                 if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
                                 {
                                     Error_Primer_Camino = true;
                                     ERROR_PRIMER_CAMINO = true;
+                                    CADENA = auxCadenaRedux;
                                 }
-                                //else no hago nada
+                                else
+                                {
+                                    CADENA = auxCadenasDespla;
+                                }
                             }
                             if (Error_Primer_Camino)//reducir
                             {
                                 SplitR = SplitSinDivisor[1].Split('r');
-                                RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
+                                LA_PILA.Pop();//quito el desplazar de antes, tengo que poner en los demas
+                                SIMBOLO_PARSER.Pop();
+                                RecursivoReducirEIrA(int.Parse(SplitR[1]), auxCadenaRedux.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
                             }
                             if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                             {
+                                SINTAXIS_CORRECTA = false;
+                                MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                                 //recuperarse
                                 while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                                 {
@@ -529,6 +546,8 @@ namespace Proyecto_Compis
                         }
                         else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
                         {
+                            SINTAXIS_CORRECTA = false;
+                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                             while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                             {
                                 LA_PILA.Pop();
@@ -578,7 +597,8 @@ namespace Proyecto_Compis
                         }
                         else // aceptar
                         {
-                            var er = "acpetar";
+                            SINTAXIS_CORRECTA = true;
+                            MENSAJE_RESULTANTE = "/////////// COMPILACION TERMINADA, CODIGO SINTACTICAMENTE CORRECTO :) ///////";
                         }
                     }
                     else//viene una palabra reconocible
@@ -593,52 +613,66 @@ namespace Proyecto_Compis
                             bool Error_Primer_Camino = false;
                             ERROR_PRIMER_CAMINO = false;
                             ERROR_SEGUNDO_CAMINO = false;
+                            Queue<PropiedadesDePalabras> auxCadenasDespla = new Queue<PropiedadesDePalabras>();
+                            Queue<PropiedadesDePalabras> auxCadenaRedux = new Queue<PropiedadesDePalabras>();
+                            foreach (var item in CADENA)
+                            {
+                                auxCadenaRedux.Enqueue(item);
+                                auxCadenasDespla.Enqueue(item);
+                            }
                             if (!Error_Primer_Camino)//desplazar
                             {
                                 SplitESE = SplitSinDivisor[0].Split('s');
                                 var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
                                 LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
                                 SIMBOLO_PARSER.Push(TopeDeCadena.Cadena);//agrego a simbolo
-                                CADENA.Dequeue();//quito de entrada
-                                                 //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
+                                auxCadenasDespla.Dequeue();//quito de entrada
+                                                           //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
                                 AccionConLetra = string.Empty;
 
-                                if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                                if (auxCadenasDespla.Peek().Nombre == "IDENTIFICADOR")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                                 }
-                                else if (CADENA.Peek().Nombre == "NUMERO")
+                                else if (auxCadenasDespla.Peek().Nombre == "NUMERO")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
                                 }
-                                else if (CADENA.Peek().Nombre == "DECIMAL")
+                                else if (auxCadenasDespla.Peek().Nombre == "DECIMAL")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
                                 }
-                                else if (CADENA.Peek().Nombre == "CADENA")
+                                else if (auxCadenasDespla.Peek().Nombre == "CADENA")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
                                 }
-                                else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                                else if (auxCadenasDespla.Peek().Cadena == "true" || auxCadenasDespla.Peek().Cadena == "false")
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
                                 }
                                 else
                                 {
-                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                    AccionConLetra = RegresarAccion(LA_PILA.Peek(), auxCadenasDespla.Peek().Cadena);
                                 }
+
 
                                 if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
                                 {
                                     Error_Primer_Camino = true;
                                     ERROR_PRIMER_CAMINO = true;
+                                    CADENA = auxCadenaRedux;
                                 }
-                                //else no hago nada
+                                else
+                                {
+                                    CADENA = auxCadenasDespla;
+                                }
                             }
                             if (Error_Primer_Camino)//reducir
                             {
                                 SplitR = SplitSinDivisor[1].Split('r');
-                                RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
+                                LA_PILA.Pop();//quito el desplazar de antes, tengo que poner en los demas
+                                SIMBOLO_PARSER.Pop();
+                                RecursivoReducirEIrA(int.Parse(SplitR[1]), auxCadenaRedux.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
                             }
                             if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                             {
@@ -674,7 +708,7 @@ namespace Proyecto_Compis
                                     {
                                         AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
                                     }
-                                    var SplitESE = AccionConLetra.Split('s');
+                                    SplitESE = AccionConLetra.Split('s');
                                     if (SplitESE.Length > 1)
                                     {
                                         var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
@@ -708,6 +742,8 @@ namespace Proyecto_Compis
                         }
                         else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
                         {
+                            SINTAXIS_CORRECTA = false;
+                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                             while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                             {
                                 LA_PILA.Pop();
@@ -739,7 +775,7 @@ namespace Proyecto_Compis
                                 {
                                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
                                 }
-                                var SplitESE = AccionConLetra.Split('s');
+                                SplitESE = AccionConLetra.Split('s');
                                 if (SplitESE.Length > 1)
                                 {
                                     var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
@@ -757,7 +793,8 @@ namespace Proyecto_Compis
                         }
                         else // aceptar
                         {
-                            var h = "aceptar";
+                            SINTAXIS_CORRECTA = true;
+                            MENSAJE_RESULTANTE = "/////////// COMPILACION TERMINADA, CODIGO SINTACTICAMENTE CORRECTO :) ///////";
                         }
                     }
                 }
@@ -771,6 +808,8 @@ namespace Proyecto_Compis
                     }
                     else // error de sintaxis, codigo mal escrito
                     {
+                        SINTAXIS_CORRECTA = false;
+                        MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                         //recuperarse
                         while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                         {
@@ -851,7 +890,7 @@ namespace Proyecto_Compis
                 {
                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
                 }
-                else if (Cadena_A_Evaluar.Nombre == "CADENA")
+                else if (CADENA.Peek().Nombre  == "CADENA")
                 {
                     AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
                 }
@@ -873,55 +912,72 @@ namespace Proyecto_Compis
                     bool Error_Primer_Camino = false;
                     ERROR_PRIMER_CAMINO = false;
                     ERROR_SEGUNDO_CAMINO = false;
+                    Queue<PropiedadesDePalabras> auxCadenasDespla = new Queue<PropiedadesDePalabras>();
+                    Queue<PropiedadesDePalabras> auxCadenaRedux = new Queue<PropiedadesDePalabras>();
+                    foreach (var item in CADENA)
+                    {
+                        auxCadenaRedux.Enqueue(item);
+                        auxCadenasDespla.Enqueue(item);
+                    }
                     if (!Error_Primer_Camino)//desplazar
                     {
                         SplitESE = SplitSinDivisor[0].Split('s');
                         var Estado_A_Desplazarse = int.Parse(SplitESE[1]);
                         LA_PILA.Push(Estado_A_Desplazarse);//meto a la pila el numero del estado a desplazar
                         SIMBOLO_PARSER.Push(Cadena_A_Evaluar.Cadena);//agrego a simbolo
-                        CADENA.Dequeue();//quito de entrada
+                        auxCadenasDespla.Dequeue();//quito de entrada
                         //termine de hacer el proceso normal de desplazamineto, ahora tengo que ver si el siguiente me da error
                         AccionConLetra = string.Empty;
 
-                        if (CADENA.Peek().Nombre == "IDENTIFICADOR")
+                        if (auxCadenasDespla.Peek().Nombre == "IDENTIFICADOR")
                         {
                             AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
                         }
-                        else if (Cadena_A_Evaluar.Nombre == "NUMERO")
+                        else if (auxCadenasDespla.Peek().Nombre == "NUMERO")
                         {
                             AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
                         }
-                        else if (Cadena_A_Evaluar.Nombre == "DECIMAL")
+                        else if (auxCadenasDespla.Peek().Nombre == "DECIMAL")
                         {
                             AccionConLetra = RegresarAccion(LA_PILA.Peek(), "doubleConstant");
                         }
-                        else if (Cadena_A_Evaluar.Nombre == "CADENA")
+                        else if (auxCadenasDespla.Peek().Nombre == "CADENA")
                         {
                             AccionConLetra = RegresarAccion(LA_PILA.Peek(), "stringConstant");
                         }
-                        else if (CADENA.Peek().Cadena == "true" || CADENA.Peek().Cadena == "false")
+                        else if (auxCadenasDespla.Peek().Cadena == "true" || auxCadenasDespla.Peek().Cadena == "false")
                         {
                             AccionConLetra = RegresarAccion(LA_PILA.Peek(), "boolConstant");
                         }
                         else
                         {
-                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                            AccionConLetra = RegresarAccion(LA_PILA.Peek(), auxCadenasDespla.Peek().Cadena);
                         }
 
                         if (AccionConLetra == "n")//como ya se encontre su accion, veo si da error si no, sigo normal
                         {
                             Error_Primer_Camino = true;
                             ERROR_PRIMER_CAMINO = true;
+                            CADENA = auxCadenaRedux;
                         }
-                        //else no hago nada
+                        else
+                        {
+                            CADENA = auxCadenasDespla;
+                        }
                     }
                     if (Error_Primer_Camino)//reducir
                     {
                         SplitR = SplitSinDivisor[1].Split('r');
-                        RecursivoReducirEIrA(int.Parse(SplitR[1]), CADENA.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
+                        LA_PILA.Pop();//quito el desplazar de antes, tengo que poner en los demas
+                        SIMBOLO_PARSER.Pop();
+                        RecursivoReducirEIrA(int.Parse(SplitR[1]), auxCadenaRedux.Peek());//le paso la cadena a reducir, tengo que ver si es error o no en el método
                     }
                     if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                     {
+                        SINTAXIS_CORRECTA = false;
+                        MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + Cadena_A_Evaluar.Linea +"     ///////////"+"\n"+ "Se encontró: "+Cadena_A_Evaluar.Cadena;
+                        ERROR_PRIMER_CAMINO = false;
+                        ERROR_SEGUNDO_CAMINO = false;
                         //recuperarse
                         while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                         {
@@ -952,7 +1008,7 @@ namespace Proyecto_Compis
                             }
                             else
                             {
-                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);
+                                AccionConLetra = RegresarAccion(LA_PILA.Peek(), CADENA.Peek().Cadena);///////////ALTO///////////////
                             }
                             SplitESE = AccionConLetra.Split('s');
                             if (SplitESE.Length > 1)
@@ -986,8 +1042,10 @@ namespace Proyecto_Compis
                     CADENA.Dequeue();//quito de entrada
                     //var Devolver_Dic_De_No_Terminal = DICCIONARIO_DE_ESTADOS.First(x => x.Key ==  Estado_A_Desplazarse);
                 }
-                else//quiere decir que fue error de sintaxis
+                else if (AccionConLetra == "n")//quiere decir que fue error de sintaxis
                 {
+                    SINTAXIS_CORRECTA = false;
+                    MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + Cadena_A_Evaluar.Linea + "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
                     while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                     {
                         LA_PILA.Pop();
@@ -1035,12 +1093,25 @@ namespace Proyecto_Compis
                         }
                     }
                 }
+                else
+                {
+                    SINTAXIS_CORRECTA = true;
+                    MENSAJE_RESULTANTE = "/////////// COMPILACION TERMINADA, CODIGO SINTACTICAMENTE CORRECTO :) ///////";
+                }
             }
         }
 
-        public void Ejecutar_Analizador()
+        public string Ejecutar_Analizador()
         {
             Tabla_De_Parser();
+            if (SINTAXIS_CORRECTA)
+            {
+                return MENSAJE_RESULTANTE;
+            }
+            else
+            {
+                return MENSAJE_RESULTANTE;
+            }
         }
 
     }
