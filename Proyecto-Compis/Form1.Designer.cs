@@ -74,12 +74,12 @@
             // 
             this.button2.BackColor = System.Drawing.Color.PeachPuff;
             this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.Location = new System.Drawing.Point(295, 148);
+            this.button2.Location = new System.Drawing.Point(294, 134);
             this.button2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(142, 58);
+            this.button2.Size = new System.Drawing.Size(173, 72);
             this.button2.TabIndex = 3;
-            this.button2.Text = "Analizador léxico";
+            this.button2.Text = "Analizador sintáctico y léxico";
             this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
