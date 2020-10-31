@@ -491,7 +491,7 @@ namespace Proyecto_Compis
                                     if (!SINTAXIS_CORRECTA)
                                     {
                                         SINTAXIS_CORRECTA = true;
-                                        MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
+                                        MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + TopeDeCadena.Linea + ", COLUMNAs: DE LA" + TopeDeCadena.Columna + ", A LA " + TopeDeCadena.Columna + TopeDeCadena.Lenght + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                                     }
                                     //recuperarse
                                     while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
@@ -568,7 +568,8 @@ namespace Proyecto_Compis
                                 if (!SINTAXIS_CORRECTA)
                                 {
                                     SINTAXIS_CORRECTA = true;
-                                    MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
+                                    var columnasTK = TopeDeCadena.Columna + TopeDeCadena.Lenght;
+                                    MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + TopeDeCadena.Linea + ", COLUMNAs: DE LA " + TopeDeCadena.Columna + ", A LA " + columnasTK + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                                 }
                                 while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                                 {
@@ -708,7 +709,8 @@ namespace Proyecto_Compis
                                     if (!SINTAXIS_CORRECTA)
                                     {
                                         SINTAXIS_CORRECTA = true;
-                                        MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
+                                        var columnasTK = TopeDeCadena.Columna + TopeDeCadena.Lenght;
+                                        MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + TopeDeCadena.Linea + ", COLUMNAs: DE LA " + TopeDeCadena.Columna + ", A LA " + columnasTK + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                                     }
                                     while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                                     {
@@ -785,7 +787,7 @@ namespace Proyecto_Compis
                                 if (!SINTAXIS_CORRECTA)
                                 {
                                     SINTAXIS_CORRECTA = true;
-                                    MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
+                                    MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + TopeDeCadena.Linea + ", COLUMNAs: DE LA" + TopeDeCadena.Columna + ", A LA " + TopeDeCadena.Columna + TopeDeCadena.Lenght + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                                 }
                                 while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                                 {
@@ -852,7 +854,8 @@ namespace Proyecto_Compis
                         else // error de sintaxis, codigo mal escrito
                         {
                             SINTAXIS_CORRECTA = false;
-                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + TopeDeCadena.Linea + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
+                            var columnasTK = TopeDeCadena.Columna + TopeDeCadena.Lenght;
+                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + TopeDeCadena.Linea + ", COLUMNAs: DE LA " + TopeDeCadena.Columna + ", A LA " + columnasTK + "     ///////////" + "\n" + "Se encontró: " + TopeDeCadena.Cadena;
                             //recuperarse
                             while (LA_PILA.Count > 1)//limpio la pila, la dejo en 0
                             {
@@ -1023,7 +1026,8 @@ namespace Proyecto_Compis
                         if (ERROR_PRIMER_CAMINO && ERROR_SEGUNDO_CAMINO)//Error de sintaxis, ya probe con ambos caminos
                         {
                             SINTAXIS_CORRECTA = false;
-                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + Cadena_A_Evaluar.Linea + "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
+                            var columnasTK = Cadena_A_Evaluar.Columna + Cadena_A_Evaluar.Lenght;
+                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + Cadena_A_Evaluar.Linea + ", COLUMNAs: DE LA "+Cadena_A_Evaluar.Columna+", A LA "+columnasTK+ "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
                             ERROR_PRIMER_CAMINO = false;
                             ERROR_SEGUNDO_CAMINO = false;
                             //recuperarse
@@ -1096,7 +1100,8 @@ namespace Proyecto_Compis
                         if (!SINTAXIS_CORRECTA)
                         {
                             SINTAXIS_CORRECTA = true;
-                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA LINEA: " + Cadena_A_Evaluar.Linea + "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
+                            var columnasTK = Cadena_A_Evaluar.Columna + Cadena_A_Evaluar.Lenght;
+                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + Cadena_A_Evaluar.Linea + ", COLUMNAs: DE LA " + Cadena_A_Evaluar.Columna + ", A LA " + columnasTK + "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
                         }
 
                         try
