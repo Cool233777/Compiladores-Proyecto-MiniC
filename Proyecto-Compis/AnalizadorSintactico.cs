@@ -9,8 +9,8 @@ namespace Proyecto_Compis
 {
     public class AnalizadorSintactico
     {
-        //public static Dictionary<string, string> DiCCIONARIO_DE_SIMBOLOS = new Dictionary<string, string>();
-
+        
+       
         public static Dictionary<int, Dictionary<string, string>> DICCIONARIO_DE_ESTADOS = new Dictionary<int, Dictionary<string, string>>();
         public static Stack<int> LA_PILA = new Stack<int>();
         public static Stack<string> SIMBOLO_PARSER = new Stack<string>();
@@ -22,6 +22,7 @@ namespace Proyecto_Compis
         bool ERROR_SEGUNDO_CAMINO = false;
         public static bool SINTAXIS_CORRECTA = false;
         public static string MENSAJE_RESULTANTE = string.Empty;
+        public static List<Simbolo> TABLA_DE_SIMBOLOS_GLOBAL = new List<Simbolo>();
 
         public AnalizadorSintactico(List<PropiedadesDePalabras> Tokns)
         {
@@ -335,7 +336,22 @@ namespace Proyecto_Compis
             DicARegresar.Add(99, new string[] { "1", "ExprCompP" });
             //DicARegresar.Add(99, 1);
             ////100.	ExprCompP -> null
-            DicARegresar.Add(100, new string[] { "|", "ExprCompP" });
+            DicARegresar.Add(100, new string[] { "1", "ExprCompP" });
+            //DicARegresar.Add(100, 1);
+            //101. Stmt -> CallStmt
+            DicARegresar.Add(101, new string[] { "1", "Stmt" });
+            //DicARegresar.Add(100, 1);
+            //102. CallStmt -> ident ( Actuals )
+            DicARegresar.Add(102, new string[] { "4", "CallStmt" });
+            //103. CallStmt -> ident . ident ( Actuals )
+            //DicARegresar.Add(100, 1);
+            DicARegresar.Add(103, new string[] { "6", "CallStmt" });
+            //104. Actuals -> Expr , Actuals
+            //DicARegresar.Add(100, 1);
+            DicARegresar.Add(104, new string[] { "3", "Actuals" });
+            // 105. Actuals -> Expr
+            //DicARegresar.Add(100, 1);
+            DicARegresar.Add(105, new string[] { "1", "Actuals" });
             //DicARegresar.Add(100, 1);
             //terminar aqui
 
@@ -345,7 +361,7 @@ namespace Proyecto_Compis
         public void Crear_Tabla()
         {
             CrearDicNoTerminales();
-            var Simbolos = new string[89] { ";", "id", "const", "int", "double", "bool", "string", "[]", "(", ")", "void", ",", "class", "{", "}", ":", "interface", "if", "else", "while", "for", "return", "break", "Console", ".", "WriteLine", "=", "==", "&&", "<", "<=", "+", "*", "%", "-", "!", "this", "New", "intConstant", "doubleConstant", "boolConstant", "stringConstant", "null", "$", "S'", "Program", "Decl", "VariableDecl", "Variable", "ConstDecl", "ConstType", "Type", "Type_P", "Type_R", "FunctionsDecl", "Formals", "Formals_P", "ClassDecl", "ClassDecl_P", "ClassDecl_R", "ClassDecl_O", "ClassDecl_Q", "Field", "InterfaceDecl", "InterfaceDecl_P", "Prototype", "StmtBlock", "StmtBlock_P", "StmtBlock_R", "StmtBlock_O", "Stmt", "Stmt_P", "IfStmt", "IfStmt_P", "WhileStmt", "ForStmt", "ReturnStmt", "BreakStmt", "PrintStmt", "PrintStmt_P", "Expr", "ExprOr", "ExprOrP", "ExprAnd", "ExprAndP", "ExprEquals", "ExprEqualsP", "ExprComp", "ExprCompP" };
+            var Simbolos = new string[91] { ";", "id", "const", "int", "double", "bool", "string", "[]", "(", ")", "void", ",", "class", "{", "}", ":", "interface", "if", "else", "while", "for", "return", "break", "Console", ".", "WriteLine", "=", "==", "&&", "<", "<=", "+", "*", "%", "-", "!", "this", "New", "intConstant", "doubleConstant", "boolConstant", "stringConstant", "null", "$", "S'", "Program", "Decl", "VariableDecl", "Variable", "ConstDecl", "ConstType", "Type", "Type_P", "Type_R", "FunctionsDecl", "Formals", "Formals_P", "ClassDecl", "ClassDecl_P", "ClassDecl_R", "ClassDecl_O", "ClassDecl_Q", "Field", "InterfaceDecl", "InterfaceDecl_P", "Prototype", "StmtBlock", "StmtBlock_P", "StmtBlock_R", "StmtBlock_O", "Stmt", "Stmt_P", "IfStmt", "IfStmt_P", "WhileStmt", "ForStmt", "ReturnStmt", "BreakStmt", "PrintStmt", "PrintStmt_P", "Expr", "ExprOr", "ExprOrP", "ExprAnd", "ExprAndP", "ExprEquals", "ExprEqualsP", "ExprComp", "ExprCompP", "CallStmt", "Actuals" };
             //var Archivo = new FileStream(@"D:\Descargas\SLR.txt", FileMode.Open);
             var Archivo = new FileStream(@"D:\Escritorio\SLR.txt", FileMode.Open);
             var Lector = new StreamReader(Archivo);
@@ -932,6 +948,7 @@ namespace Proyecto_Compis
                     if (Cadena_A_Evaluar.Nombre == "IDENTIFICADOR")
                     {
                         AccionConLetra = RegresarAccion(LA_PILA.Peek(), "id");
+                        //seria como una especie de pila que vaya heredando los nuevos simbolos a leer hasta que encuentre un ";"
                     }
                     else if (Cadena_A_Evaluar.Nombre == "NUMERO")
                     {
@@ -952,6 +969,9 @@ namespace Proyecto_Compis
                     else
                     {
                         AccionConLetra = RegresarAccion(LA_PILA.Peek(), Cadena_A_Evaluar.Cadena);
+                        //switch que evalue el tipo
+                        //crear un simbolo vacio nuevo
+                        //luego guardar en la tabla de simbolos un nuevo simbolo vacio pero con el tipo heredado
                     }
 
                     var SplitSinDivisor = AccionConLetra.Split('/');
