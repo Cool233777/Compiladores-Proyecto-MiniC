@@ -9,8 +9,8 @@ namespace Proyecto_Compis
 {
     public class AnalizadorSintactico
     {
-        
-       
+
+
         public static Dictionary<int, Dictionary<string, string>> DICCIONARIO_DE_ESTADOS = new Dictionary<int, Dictionary<string, string>>();
         public static Stack<int> LA_PILA = new Stack<int>();
         public static Stack<string> SIMBOLO_PARSER = new Stack<string>();
@@ -22,7 +22,6 @@ namespace Proyecto_Compis
         bool ERROR_SEGUNDO_CAMINO = false;
         public static bool SINTAXIS_CORRECTA = false;
         public static string MENSAJE_RESULTANTE = string.Empty;
-        public static List<Simbolo> TABLA_DE_SIMBOLOS_GLOBAL = new List<Simbolo>();
 
         public AnalizadorSintactico(List<PropiedadesDePalabras> Tokns)
         {
@@ -373,8 +372,11 @@ namespace Proyecto_Compis
                 var PosSimbolos = 0;
                 foreach (var item in SplitSinPuntoYcoma)
                 {
-                    Dic_simbolos.Add(Simbolos[PosSimbolos], item);
-                    PosSimbolos++;
+                    if (item != "")
+                    {
+                        Dic_simbolos.Add(Simbolos[PosSimbolos], item);
+                        PosSimbolos++;
+                    }
                 }
                 DICCIONARIO_DE_ESTADOS.Add(PosEstados, Dic_simbolos);
                 PosEstados++;
@@ -414,9 +416,9 @@ namespace Proyecto_Compis
                     {
                         while (Numeros_A_Desapilar > 0)//quitar los primeros simbolos, colocar en el primero el simbolo reducido y correr la lista
                         {
-                            Aux_Simbolo_Parser.Pop();
-                            LA_PILA.Pop();
-                            Numeros_A_Desapilar--;
+                                Aux_Simbolo_Parser.Pop();
+                                LA_PILA.Pop();
+                                Numeros_A_Desapilar--;
                         }
                         Aux_Simbolo_Parser.Push(Devolver_Dic_De_No_Terminal.Value[1]);
                         SIMBOLO_PARSER = Aux_Simbolo_Parser;
@@ -953,6 +955,7 @@ namespace Proyecto_Compis
                     else if (Cadena_A_Evaluar.Nombre == "NUMERO")
                     {
                         AccionConLetra = RegresarAccion(LA_PILA.Peek(), "intConstant");
+
                     }
                     else if (Cadena_A_Evaluar.Nombre == "DECIMAL")
                     {
@@ -1047,7 +1050,7 @@ namespace Proyecto_Compis
                         {
                             SINTAXIS_CORRECTA = false;
                             var columnasTK = Cadena_A_Evaluar.Columna + Cadena_A_Evaluar.Lenght;
-                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + Cadena_A_Evaluar.Linea + ", COLUMNAs: DE LA "+Cadena_A_Evaluar.Columna+", A LA "+columnasTK+ "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
+                            MENSAJE_RESULTANTE = "///////// ERROR DE SINTAXIS EN LA FILA: " + Cadena_A_Evaluar.Linea + ", COLUMNAs: DE LA " + Cadena_A_Evaluar.Columna + ", A LA " + columnasTK + "     ///////////" + "\n" + "Se encontró: " + Cadena_A_Evaluar.Cadena;
                             ERROR_PRIMER_CAMINO = false;
                             ERROR_SEGUNDO_CAMINO = false;
                             //recuperarse
@@ -1196,7 +1199,7 @@ namespace Proyecto_Compis
             catch (Exception)
             {
             }
-           
+
         }
 
         public string Ejecutar_Analizador()

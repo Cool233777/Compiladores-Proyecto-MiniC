@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Proyecto_Compis
 {
-    public class Simbolo
+    public class Ambitos
     {
-        public string IDLexema = "";
-        public string Tipo = "";
-        public string Valor = "";
+        public Dictionary<string, List<string>> AMBITO = new Dictionary<string, List<string>>();
     }
 }

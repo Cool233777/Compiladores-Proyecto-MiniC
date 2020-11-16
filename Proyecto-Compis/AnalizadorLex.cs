@@ -12,13 +12,12 @@ namespace Proyecto_Compis
         //cambiar nombres a mayus
         public Regex REGEX;
         public StringBuilder PATTERN;
-        public List<string> TNOMBRES= new List<string>();
+        public List<string> TNOMBRES = new List<string>();
         public int[] NUMEROS;
         public bool DEBUG;
+        //public PropiedadesDePalabras TokenAnterior = new PropiedadesDePalabras("", "", 0, 0, 0);
+        //public PropiedadesDePalabras TokenActual= new PropiedadesDePalabras("", "", 0, 0, 0);
 
-        
-
-       
         //Método para agregar las reglas y reconocer los tokens
         public void NuevaReglaDeTokens(string patron_Nuevo, string token_Nombre, bool ignorar = false)
         {
@@ -38,7 +37,6 @@ namespace Proyecto_Compis
 
             DEBUG = true;
         }
-
 
         //Recibir tokens
         public IEnumerable<PropiedadesDePalabras> Tokens(string Texto_A_Compilar)
@@ -68,12 +66,19 @@ namespace Proyecto_Compis
                         var nombre = REGEX.GroupNameFromNumber(NUMEROS[i]);
                         yield return new PropiedadesDePalabras(nombre, match.Value, match.Index, linea, (match.Index - comienzo) + 1);
                         break;
-
                     }
                 }
                 linea += ContarLineas(match.Index, ref comienzo, match.Value);
                 indice = match.Index + match.Length;
                 match = match.NextMatch();
+                //if (TokenActual.Cadena == "void")
+                //{
+                //    TokenAnterior = TokenActual;
+                //}
+                //if (TokenActual.Nombre == "IDENTIFICADOR" && TokenAnterior.Cadena == "void")
+                //{
+                //    //tabla de simbolos.add (identificador , atributos ej: int a, string b, bool c)
+                //}
             }
 
             if (Texto_A_Compilar.Length > indice)
@@ -117,6 +122,8 @@ namespace Proyecto_Compis
                 }
             return linea;
         }
+
+
     }
 }
 
