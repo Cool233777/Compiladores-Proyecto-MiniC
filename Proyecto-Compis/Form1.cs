@@ -83,7 +83,8 @@ namespace Proyecto_Compis
             AnalizadorSintactico sintax = new AnalizadorSintactico(Lista_Tokens);
             var Resultado_De_Sintaxis = sintax.Ejecutar_Analizador();
             AnalizadorSemántico Semantico = new AnalizadorSemántico(Lista_Tokens);
-            Semantico.DefinirAmbitos();
+             Semantico.DefinirAmbitos();
+            var lista = Semantico.RegresarAmbitos();
             using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
             {
                 using (var escritor = new StreamWriter(Archivo_Salida))

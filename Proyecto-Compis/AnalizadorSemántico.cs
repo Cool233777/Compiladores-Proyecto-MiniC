@@ -41,6 +41,11 @@ namespace Proyecto_Compis
             LISTA_TOKENS.Enqueue(Dolar);
         }
 
+        public List<Ambitos> RegresarAmbitos()
+        {
+            return LISTA_DE_AMBITOS;
+        }
+
         public void DefinirAmbitos()
         {
             List<PropiedadesDePalabras> Lista_tkns = new List<PropiedadesDePalabras>();
@@ -102,7 +107,7 @@ namespace Proyecto_Compis
         {
             //aqui voy a definir puras variables y crear ambito
             var quitarTokens = 0;
-            //CuantasVariablesMeComi++;
+            CuantasVariablesMeComi++;
             var lista_Variables_Declaradas = new List<string>();
             //recorrer la lista global de tokens hasta encontrar un }
             if (LISTA_TOKENS.Peek().Cadena == ":")
@@ -121,7 +126,7 @@ namespace Proyecto_Compis
                         CuantasVariablesMeComi++;
                         if (DEFINICION_VARIABLE.IsMatch(LECTOR_DE_CADENA) || DEFINICION_VARIABLE_VECTOR.IsMatch(LECTOR_DE_CADENA) || DEFINICION_CONSTANTE.IsMatch(LECTOR_DE_CADENA))
                         {
-                            lista_Variables_Declaradas.Add("Atributo: " + LECTOR_DE_CADENA+"\n");
+                            lista_Variables_Declaradas.Add("Atributo: " + LECTOR_DE_CADENA + "\n");
                             LECTOR_DE_CADENA = string.Empty;
                         }
                     }
@@ -132,7 +137,7 @@ namespace Proyecto_Compis
                     }
                 }
                 quitarTokens = CuantasVariablesMeComi;
-                while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+                while (quitarTokens-1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
                 {
                     LISTA_TOKENS.Dequeue();
                     quitarTokens--;
@@ -151,6 +156,8 @@ namespace Proyecto_Compis
             var quitarTokens = 0;
             LISTA_TOKENS.Dequeue();//remover id de la clase heredada
             LISTA_TOKENS.Dequeue();//remover {
+            CuantasVariablesMeComi++;
+            CuantasVariablesMeComi++;
             //CuantasVariablesMeComi++;
             var lista_Variables_Declaradas = new List<string>();
             //recorrer la lista global de tokens hasta encontrar un }
@@ -163,7 +170,7 @@ namespace Proyecto_Compis
                     CuantasVariablesMeComi++;
                     if (DEFINICION_VARIABLE.IsMatch(LECTOR_DE_CADENA) || DEFINICION_VARIABLE_VECTOR.IsMatch(LECTOR_DE_CADENA) || DEFINICION_CONSTANTE.IsMatch(LECTOR_DE_CADENA))
                     {
-                        lista_Variables_Declaradas.Add("Atributo: " + LECTOR_DE_CADENA+"\n");
+                        lista_Variables_Declaradas.Add("Atributo: " + LECTOR_DE_CADENA + "\n");
                         LECTOR_DE_CADENA = string.Empty;
                     }
                 }
@@ -174,7 +181,7 @@ namespace Proyecto_Compis
                 }
             }
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens-3 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
@@ -189,7 +196,7 @@ namespace Proyecto_Compis
             //aqui voy a definir puras variables y crear ambito
             LISTA_TOKENS.Dequeue();//remover (
             var quitarTokens = 0;
-            //CuantasVariablesMeComi++;
+            CuantasVariablesMeComi++;//remover (
             var Parametros_Declarados = new List<string>();//REVISAR SI SE PUEDE HACER UN METODO PARA AHORRAR CODIGO
             //recorrer la lista global de tokens hasta encontrar un }
             foreach (var item in LISTA_TOKENS)
@@ -201,7 +208,7 @@ namespace Proyecto_Compis
                     CuantasVariablesMeComi++;
                     if (DEFINICION_VARIABLE_PARAMETRO.IsMatch(LECTOR_DE_CADENA) || DEFINICION_VARIABLE_VECTOR_PARAMETRO.IsMatch(LECTOR_DE_CADENA))
                     {
-                        Parametros_Declarados.Add("Parametro: " + LECTOR_DE_CADENA+"\n");
+                        Parametros_Declarados.Add("Parametro: " + LECTOR_DE_CADENA + "\n");
                         LECTOR_DE_CADENA = string.Empty;
                     }
                 }
@@ -217,8 +224,10 @@ namespace Proyecto_Compis
             }
             //el siguiente token es un {
             //revisar que hago adentro del metodo
+            CuantasVariablesMeComi++;
+            CuantasVariablesMeComi++;
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens-1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
@@ -233,7 +242,7 @@ namespace Proyecto_Compis
             //aqui voy a definir puras variables y crear ambito
             LISTA_TOKENS.Dequeue();//remover {
             var quitarTokens = 0;
-            //CuantasVariablesMeComi++;
+            CuantasVariablesMeComi++;
             var lista_Variables_Declaradas = new List<string>();
             var lista_Variables_De_SubMetodos = new Stack<string>();
             //recorrer la lista global de tokens hasta encontrar un }
@@ -281,7 +290,7 @@ namespace Proyecto_Compis
                 }
             }
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens-1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
@@ -296,68 +305,71 @@ namespace Proyecto_Compis
             //aqui voy a definir puras variables y crear ambito
             var TipoConstante = LISTA_TOKENS.Peek().Cadena;
             LISTA_TOKENS.Dequeue(); // remover tipo
+            CuantasVariablesMeComi++;
             var IDConstante = LISTA_TOKENS.Peek().Cadena;
             LISTA_TOKENS.Dequeue(); // remover id
+            CuantasVariablesMeComi++;
             LISTA_TOKENS.Dequeue(); // remover =
+            CuantasVariablesMeComi++;
             var quitarTokens = 0;
             //CuantasVariablesMeComi++;
             var lista_Variables_Declaradas = new List<string>();
             //recorrer la lista global de tokens hasta encontrar un ;
-            foreach (var item in LISTA_TOKENS)
-            {
-                if (item.Cadena != ";")
-                {
-                    LECTOR_DE_CADENA += item.Cadena;
-                    var VecDouble = LECTOR_DE_CADENA.Split('.');
-                    var valorDeConstante="";
-                    var IntConst = 0;
-                    CuantasVariablesMeComi++;
-                    if (VecDouble.Length > 1)
-                    {
-                        valorDeConstante = "double";
-                    }
-                    else if (LECTOR_DE_CADENA == "false" || LECTOR_DE_CADENA == "true")
-                    {
-                        valorDeConstante = LECTOR_DE_CADENA;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            IntConst = int.Parse(LECTOR_DE_CADENA);
-                            valorDeConstante = "int";
-                        }
-                        catch (Exception)
-                        {
-                            valorDeConstante = "string";
-                        }
-                    }
-                    if (TipoConstante == valorDeConstante)
-                    {
-                        lista_Variables_Declaradas.Add("Valor: " + LECTOR_DE_CADENA);//verifico que la cadena sea el mismo tipo que el constante
-                        LECTOR_DE_CADENA = string.Empty;
-                    }
-                    else
-                    {
-                        //error semantico de asignacion de constante
-                    }
-                    
+            //foreach (var item in LISTA_TOKENS)
+            //{
+            //    if (item.Cadena != ";")
+            //    {
+            //        LECTOR_DE_CADENA += item.Cadena;
+            //        var VecDouble = LECTOR_DE_CADENA.Split('.');
+            //        var valorDeConstante = "";
+            //        var IntConst = 0;
+            //        CuantasVariablesMeComi++;
+            //        if (VecDouble.Length > 1)
+            //        {
+            //            valorDeConstante = "double";
+            //        }
+            //        else if (LECTOR_DE_CADENA == "false" || LECTOR_DE_CADENA == "true")
+            //        {
+            //            valorDeConstante = LECTOR_DE_CADENA;
+            //        }
+            //        else
+            //        {
+            //            try
+            //            {
+            //                IntConst = int.Parse(LECTOR_DE_CADENA);
+            //                valorDeConstante = "int";
+            //            }
+            //            catch (Exception)
+            //            {
+            //                valorDeConstante = "string";
+            //            }
+            //        }
+            //        if (TipoConstante == valorDeConstante)
+            //        {
+            //            lista_Variables_Declaradas.Add("Valor: " + LECTOR_DE_CADENA);//verifico que la cadena sea el mismo tipo que el constante
+            //            LECTOR_DE_CADENA = string.Empty;
+            //        }
+            //        else
+            //        {
+            //            //error semantico de asignacion de constante
+            //        }
 
-                }
-                else if (item.Cadena == ";")
-                {
-                    CuantasVariablesMeComi++;
-                    break;
-                }
-            }
+
+            //    }
+            //    else if (item.Cadena == ";")
+            //    {
+            //        CuantasVariablesMeComi++;
+            //        break;
+            //    }
+            //}
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens - 3 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
             }
             Ambitos NuevoAmbitoClase = new Ambitos();
-            NuevoAmbitoClase.AMBITO.Add("Constante: " + IDConstante+" Tipo: "+ TipoConstante+ "\n", lista_Variables_Declaradas);
+            NuevoAmbitoClase.AMBITO.Add("Constante: " + IDConstante + " Tipo: " + TipoConstante + "\n", lista_Variables_Declaradas);
             LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
         }
 
@@ -382,7 +394,7 @@ namespace Proyecto_Compis
                     CuantasVariablesMeComi++;
                     if (DEFINICION_VARIABLE_PARAMETRO.IsMatch(LECTOR_DE_CADENA) || DEFINICION_VARIABLE_VECTOR_PARAMETRO.IsMatch(LECTOR_DE_CADENA))
                     {
-                        Parametros_Declarados.Add("Parametro: " + LECTOR_DE_CADENA+"\n");
+                        Parametros_Declarados.Add("Parametro: " + LECTOR_DE_CADENA + "\n");
                         LECTOR_DE_CADENA = string.Empty;
                     }
                 }
@@ -398,6 +410,8 @@ namespace Proyecto_Compis
             }
             //el siguiente token es un {
             //revisar que hago adentro del metodo
+            CuantasVariablesMeComi++;
+            CuantasVariablesMeComi++;
             quitarTokens = CuantasVariablesMeComi;
             while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
@@ -405,7 +419,7 @@ namespace Proyecto_Compis
                 quitarTokens--;
             }
             Ambitos NuevoAmbitoMetodo = new Ambitos();
-            NuevoAmbitoMetodo.AMBITO.Add("Funcion: " + ID_Metodo +" Tipo: "+Tipo_Metodo+ "\n", Parametros_Declarados);
+            NuevoAmbitoMetodo.AMBITO.Add("Funcion: " + ID_Metodo + " Tipo: " + Tipo_Metodo + "\n", Parametros_Declarados);
             LISTA_DE_AMBITOS.Add(NuevoAmbitoMetodo);
         }
 
@@ -430,7 +444,7 @@ namespace Proyecto_Compis
             var ID_Variable = vecLectorCad[2];
             var lista_Variables_Declaradas = new List<string>();
             Ambitos NuevoAmbitoClase = new Ambitos();
-            NuevoAmbitoClase.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable+"[]" + "\n", lista_Variables_Declaradas);
+            NuevoAmbitoClase.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "[]" + "\n", lista_Variables_Declaradas);
             LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
         }
 
