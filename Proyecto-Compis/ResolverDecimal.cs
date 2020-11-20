@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace Proyecto_Compis
 {
-    public class Resolver
+   public class ResolverDecimal
     {
-        public  string CambiarPostfijo(string infijo)
+        public string CambiarPostfijo(string infijo)
         {
             int tamanio = infijo.Length;
             Stack<char> pila = new Stack<char>();
             StringBuilder postfijo = new StringBuilder();
             for (int i = 0; i < tamanio; i++)
             {
-                if ((infijo[i] >= '0') && (infijo[i] <= '9'))
+                if ((infijo[i] >= '0') && (infijo[i] <= '9') || infijo[i] =='.')
                 {
                     postfijo.Append(infijo[i]);
                 }
@@ -58,7 +58,7 @@ namespace Proyecto_Compis
             }
             return postfijo.ToString();
         }
-        public  bool precedenciadeoperadores(char top, char p_2)
+        public bool precedenciadeoperadores(char top, char p_2)
         {
             if (top == '+' && p_2 == '*') // + tiene menor precedencia que *
                 return false;
@@ -68,7 +68,7 @@ namespace Proyecto_Compis
                 return true;
             return true;
         }
-        public  int evaluarResultado(string posfija)
+        public int evaluarResultado(string posfija)
         {
             Stack<int> pilaResultado = new Stack<int>();
             int tama = posfija.Length;
@@ -86,7 +86,7 @@ namespace Proyecto_Compis
             }
             return pilaResultado.Pop();
         }
-        public  int operador(int p, int p_2, char p_3)
+        public int operador(int p, int p_2, char p_3)
         {
             switch (p_3)
             {

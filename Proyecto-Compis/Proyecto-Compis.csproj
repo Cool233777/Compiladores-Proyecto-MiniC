@@ -60,6 +60,7 @@
     <Compile Include="PropiedadesDePalabras.cs" />
     <Compile Include="Ambitos.cs" />
     <Compile Include="resolver.cs" />
+    <Compile Include="ResolverDecimal.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

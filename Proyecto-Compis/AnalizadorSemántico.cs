@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Proyecto_Compis
 {
@@ -12,7 +13,9 @@ namespace Proyecto_Compis
         public static Regex DEFINICION_CLASE = new Regex(@"^class ([a-z]|[A-Z])+[0-9]* ");
         public static Regex DEFINICION_CLASE_HEREDADA = new Regex(@"^class ([a-z]|[A-Z])+[0-9]* : ([a-z]|[A-Z])+[0-9]* ");
         public static Regex DEFINICION_VARIABLE = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* ; $");
-        public static Regex DEFINICION_VARIABLE_VECTOR = new Regex(@"^(int|double|bool|string) (\[\])? ([a-z]|[A-Z])+([0-9])* ; $");
+        //public static Regex DEFINICION_VARIABLE_MULTIPLE = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* , ");
+        public static Regex DEFINICION_VARIABLE_VECTOR = new Regex(@"^(int|double|bool|string) (\[\])? (([a-z]|[A-Z])+([0-9])*)+ ; $");
+        //public static Regex DEFINICION_VARIABLE_VECTOR_MULTIPLE = new Regex(@"^(int|double|bool|string) (\[\])? ([a-z]|[A-Z])+([0-9])* , ");
         public static Regex DEFINICION_VARIABLE_PARAMETRO = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* $");
         public static Regex DEFINICION_VARIABLE_VECTOR_PARAMETRO = new Regex(@"^(int|double|bool|string) (\[\])? ([a-z]|[A-Z])+([0-9])* $");
         public static Regex DEFINICION_METODO = new Regex(@"^void ([a-z]|[A-Z])+[0-9]* ");
@@ -21,6 +24,7 @@ namespace Proyecto_Compis
         public static Regex DEFINICION_FUNCION = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* (\()");
         public static Regex DEFINICION_FUNCION_EN_INTERFAZ = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* (\() ");
         public static Regex DEFINICION_CONSTANTE = new Regex(@"^const ");
+        public static Regex DEFINICION_ASIGNACION_DE_VALOR = new Regex(@"^([a-z]|[A-Z])+([0-9])* (\=) ");
         //public static Regex DEFINICION_CONSTANTE_INT = new Regex(@"^const (int) ([a-z]|[A-Z])+[0-9]* (=)  ; $");
         //public static Regex DEFINICION_CONSTANTE_DOUBLE = new Regex(@"^const (double) ([a-z]|[A-Z])+[0-9]* (=)  ; $");
         //public static Regex DEFINICION_CONSTANTE_BOOL = new Regex(@"^const (bool) ([a-z]|[A-Z])+[0-9]* (=)  ; $");
@@ -28,8 +32,10 @@ namespace Proyecto_Compis
         public static Queue<PropiedadesDePalabras> LISTA_TOKENS = new Queue<PropiedadesDePalabras>();
         public static List<Ambitos> LISTA_DE_AMBITOS = new List<Ambitos>();
         public static string LECTOR_DE_CADENA;
-        public static bool MeComiVariables = false;
+        //public static bool MeComiVariables = false;
         public static int CuantasVariablesMeComi = 0;
+        public static Dictionary<string, string> LISTA_ID_VARIABLES = new Dictionary<string, string>();
+        public static int CorrimientoTkMetodo = 0;
 
         public AnalizadorSemántico(List<PropiedadesDePalabras> Tokns)
         {
@@ -67,6 +73,7 @@ namespace Proyecto_Compis
                     }
                     else if (DEFINICION_METODO.IsMatch(LECTOR_DE_CADENA))
                     {
+
                         LECTOR_DE_CADENA = string.Empty;
                         MetodoDeclaracion(item.Cadena);
                     }
@@ -95,6 +102,16 @@ namespace Proyecto_Compis
                         VariableVecDeclaracion(LECTOR_DE_CADENA);
                         LECTOR_DE_CADENA = string.Empty;
                     }
+                    //else if (DEFINICION_VARIABLE_MULTIPLE.IsMatch(LECTOR_DE_CADENA))
+                    //{
+                    //    VariableMultiDeclaracion(LECTOR_DE_CADENA);
+                    //    LECTOR_DE_CADENA = string.Empty;
+                    //}
+                    //else if (DEFINICION_VARIABLE_VECTOR_MULTIPLE.IsMatch(LECTOR_DE_CADENA))
+                    //{
+                    //    VariableVecMultiDeclaracion(LECTOR_DE_CADENA);
+                    //    LECTOR_DE_CADENA = string.Empty;
+                    //}
                 }
                 else if (CuantasVariablesMeComi != 0)
                 {
@@ -137,7 +154,7 @@ namespace Proyecto_Compis
                     }
                 }
                 quitarTokens = CuantasVariablesMeComi;
-                while (quitarTokens-1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+                while (quitarTokens - 1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
                 {
                     LISTA_TOKENS.Dequeue();
                     quitarTokens--;
@@ -181,7 +198,7 @@ namespace Proyecto_Compis
                 }
             }
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens-3 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens - 3 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
@@ -222,12 +239,95 @@ namespace Proyecto_Compis
                     break;
                 }
             }
+            quitarTokens = CuantasVariablesMeComi;
+            while (quitarTokens - 1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            {
+                LISTA_TOKENS.Dequeue();
+                quitarTokens--;
+            }
             //el siguiente token es un {
             //revisar que hago adentro del metodo
-            CuantasVariablesMeComi++;
-            CuantasVariablesMeComi++;
+            var quitarTokens2 = 0;
+            var CorrerVariables2 = 0;
+            LISTA_TOKENS.Dequeue();//{//hasta aqui voy bien
+            foreach (var item in LISTA_TOKENS)
+            {
+                //if (quitarTokens2 == 0)
+                //{
+                if (item.Cadena != "}")//correr tokens por comer
+                {
+                    //verificar variables que se van a crear
+                    LECTOR_DE_CADENA += item.Cadena;
+                    LECTOR_DE_CADENA += " ";
+                    CuantasVariablesMeComi++;
+                    CorrerVariables2++;
+                    CorrimientoTkMetodo++;
+                    if (DEFINICION_ASIGNACION_DE_VALOR.IsMatch(LECTOR_DE_CADENA))
+                    {
+                        if (ComprobarExistencia(LECTOR_DE_CADENA, ID_Metodo))
+                        {
+                            ComprobacionDeTipos(LECTOR_DE_CADENA);
+                            LECTOR_DE_CADENA = string.Empty;
+                            quitarTokens2 = CorrerVariables2;
+                            
+                        }
+                        else
+                        {
+                            LECTOR_DE_CADENA = string.Empty;
+                            //error
+                        }
+                    }
+                    else if (DEFINICION_VARIABLE.IsMatch(LECTOR_DE_CADENA))
+                    {
+                        if (ComprobarExistenciaCreacionVar(LECTOR_DE_CADENA, ID_Metodo))
+                        {
+                            VariableDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
+                            LECTOR_DE_CADENA = string.Empty;
+                            quitarTokens2 = CorrerVariables2;
+                        }
+                        else
+                        {
+                            LECTOR_DE_CADENA = string.Empty;
+                            //error
+                        }
+
+                    }
+                    else if (DEFINICION_VARIABLE_VECTOR.IsMatch(LECTOR_DE_CADENA))
+                    {
+                        if (ComprobarExistenciaCreacionVar(LECTOR_DE_CADENA, ID_Metodo))
+                        {
+                            VariableVecDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
+                            LECTOR_DE_CADENA = string.Empty;
+                            quitarTokens2 = CorrerVariables2;
+
+                        }
+                        else
+                        {
+                            LECTOR_DE_CADENA = string.Empty;
+                            //error
+                        }
+                    }
+                    //instanciar variables creadas para operaciones
+                }
+                else if (item.Cadena == "}")
+                {
+                    CuantasVariablesMeComi++;
+                    CorrerVariables2++;
+                    //CorrimientoTkMetodo++;
+                    break;
+                }
+                //}
+                //else if (item.Cadena == ";")
+                //{
+                //    quitarTokens2--;
+                //    //CorrimientoTkMetodo++;
+                //}
+            }
+
+            CuantasVariablesMeComi++;//{
+            CuantasVariablesMeComi++;//}
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens-1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens - 1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
@@ -290,7 +390,7 @@ namespace Proyecto_Compis
                 }
             }
             quitarTokens = CuantasVariablesMeComi;
-            while (quitarTokens-1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
+            while (quitarTokens - 1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
@@ -411,7 +511,10 @@ namespace Proyecto_Compis
             //el siguiente token es un {
             //revisar que hago adentro del metodo
             CuantasVariablesMeComi++;
-            CuantasVariablesMeComi++;
+
+            //AgregarVariablesOVerExistencia();
+
+            CuantasVariablesMeComi++;//}
             quitarTokens = CuantasVariablesMeComi;
             while (quitarTokens > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
@@ -431,9 +534,11 @@ namespace Proyecto_Compis
             var Tipo_Variable = vecLectorCad[0];
             var ID_Variable = vecLectorCad[1];
             var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: Global");
             Ambitos NuevoAmbitoClase = new Ambitos();
             NuevoAmbitoClase.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "\n", lista_Variables_Declaradas);
             LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
+            LISTA_ID_VARIABLES.Add(ID_Variable, "Global");
         }
 
         public void VariableVecDeclaracion(string LectorCadena)
@@ -443,10 +548,367 @@ namespace Proyecto_Compis
             var Tipo_Variable = vecLectorCad[0];
             var ID_Variable = vecLectorCad[2];
             var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: Global");
             Ambitos NuevoAmbitoClase = new Ambitos();
             NuevoAmbitoClase.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "[]" + "\n", lista_Variables_Declaradas);
             LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
+            LISTA_ID_VARIABLES.Add(ID_Variable, "Global");
         }
+
+        public void VariableDeclaracionMetodo(string LectorCadena, string IDMetodo)
+        {
+            //aqui voy a definir puras variables y crear ambito
+            LECTOR_DE_CADENA = string.Empty;
+            var vecLectorCad = LectorCadena.Split(' ');
+            var Tipo_Variable = vecLectorCad[0];
+            var ID_Variable = vecLectorCad[1];
+            var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: " + IDMetodo);
+            Ambitos NuevoAmbitoClase = new Ambitos();
+            NuevoAmbitoClase.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "\n", lista_Variables_Declaradas);
+            LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
+            LISTA_ID_VARIABLES.Add(ID_Variable, IDMetodo);
+        }
+
+        public void VariableVecDeclaracionMetodo(string LectorCadena, string IDMetodo)
+        {
+            LECTOR_DE_CADENA = string.Empty;
+            var vecLectorCad = LectorCadena.Split(' ');
+            var Tipo_Variable = vecLectorCad[0];
+            var ID_Variable = vecLectorCad[2];
+            var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: " + IDMetodo);
+            Ambitos NuevoAmbitoClase = new Ambitos();
+            NuevoAmbitoClase.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "[]" + "\n", lista_Variables_Declaradas);
+            LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
+            LISTA_ID_VARIABLES.Add(ID_Variable, IDMetodo);
+        }
+
+        public bool ComprobarExistenciaCreacionVar(string LectorCadena, string IDMetodo)
+        {
+            var NoHayError = false;
+            var vecLectorCad = LectorCadena.Split(' ');
+            var Tipo_Variable = vecLectorCad[0];
+            var ID_Variable = vecLectorCad[1];
+            var listaVariables = new List<Ambitos>();
+            var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: " + IDMetodo);
+            foreach (var item in LISTA_DE_AMBITOS)
+            {
+                var ambito = item.AMBITO.ElementAt(0);
+                var vecK = ambito.Key.Split(' ');
+                var ComprobarVar = vecK[0];
+                if (ComprobarVar == "Variable:")
+                {
+                    listaVariables.Add(item);
+                }
+            }
+
+            //foreach (var item in listaVariables)//aqui ya tengo todas las variables creadas en el archivo
+            //{
+
+            //    var Vec = item.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//me separa el ambito: global
+            //    var Vec2 = item.AMBITO.ElementAt(0).Key.Split(' ');// me separa Variable: idVariable
+            //    var IDaProbar = Vec2[1];// guardo id
+            //    var NombreInstancia = Vec[1];//guardo Global
+            foreach (var item2 in LISTA_ID_VARIABLES)
+            {
+                var IDGuardado = item2.Key;
+                var InstanciaGuardado = item2.Value;
+                //var NombreInstancia2 = Vec2[1];//guardo Global
+                if (ID_Variable == IDGuardado)//tienen el mismo ID
+                {
+                    if (IDMetodo != InstanciaGuardado)
+                    {
+                        //Ambitos NuevoAmbito = new Ambitos();
+                        //NuevoAmbito.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "\n", lista_Variables_Declaradas);
+                        //LISTA_DE_AMBITOS.Add(NuevoAmbito);
+                        //LISTA_ID_VARIABLES.Add(ID_Variable, IDMetodo);
+                        ////guardo la variable
+                        NoHayError = true;
+                        return NoHayError;
+                    }
+                    else
+                    {
+                        //Error
+                        return NoHayError;
+                    }
+                }
+                else
+                {
+                    //Ambitos NuevoAmbito = new Ambitos();
+                    //NuevoAmbito.AMBITO.Add("Variable: " + ID_Variable + " Tipo: " + Tipo_Variable + "\n", lista_Variables_Declaradas);
+                    //LISTA_DE_AMBITOS.Add(NuevoAmbito);
+                    //LISTA_ID_VARIABLES.Add(ID_Variable, IDMetodo);
+                    ////guardo la variable
+                    NoHayError = true;
+                    return NoHayError;
+                }
+            }
+            //}
+
+            return NoHayError;
+        }
+
+        public bool ComprobarExistencia(string LectorCadena, string IDMetodo)
+        {
+            var Existe = false;
+            var Vec = LectorCadena.Split(' ');
+            var IDvariable = Vec[0];
+            foreach (var item in LISTA_ID_VARIABLES)
+            {
+                if (IDvariable == item.Key)//existe
+                {
+                    Existe = true;
+                    return Existe;
+                }
+                //else
+                //{
+                //    //ERROR asigno a una variable desconocida
+                //    return Existe;
+                //}
+            }
+            return Existe;
+        }
+
+        public void ComprobacionDeTipos(string LectorCadena)
+        {
+            while (CorrimientoTkMetodo > 0)// crear una auxiliar de la lista de tokens y otra auxiliar para el contador de asignacion
+            {
+                LISTA_TOKENS.Dequeue();
+                CorrimientoTkMetodo--;
+            }
+            var Vec = LectorCadena.Split(' ');
+            var IdVariable = Vec[0];
+            var TipoDeVar = "";
+            foreach (var item in LISTA_DE_AMBITOS)
+            {
+                var VecAmbito = item.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+                if (IdVariable == VecAmbito[1])
+                {
+                    TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                    break;
+                }
+            }
+
+            switch (TipoDeVar)
+            {
+                case "int"://solo puede ser suma de numeros
+                    LECTOR_DE_CADENA = string.Empty;
+                    foreach (var item in LISTA_TOKENS)
+                    {
+                        if (item.Cadena != ";")
+                        {
+                            LECTOR_DE_CADENA += item.Cadena;
+                            CuantasVariablesMeComi++;
+                        }
+                        else
+                        {
+                            CuantasVariablesMeComi++;
+                            break;
+                        }
+                    }
+                    LECTOR_DE_CADENA = LECTOR_DE_CADENA.Trim();
+                    Resolver Postfijo = new Resolver();
+                    var Post = Postfijo.CambiarPostfijo(LECTOR_DE_CADENA);
+                    LECTOR_DE_CADENA = string.Empty;
+                    if (Post != "Error")
+                    {
+                        var Resultado = Postfijo.evaluarResultado(Post);
+                    }
+                    else
+                    {
+                        //error
+                    }
+                    break;
+                case "double":
+                    LECTOR_DE_CADENA = string.Empty;
+                    foreach (var item in LISTA_TOKENS)
+                    {
+                        if (item.Cadena != ";")
+                        {
+                            LECTOR_DE_CADENA += item.Cadena;
+                            CuantasVariablesMeComi++;
+                        }
+                        else
+                        {
+                            CuantasVariablesMeComi++;
+                            break;
+                        }
+                    }
+                    LECTOR_DE_CADENA = LECTOR_DE_CADENA.Trim();
+                    Resolver Postfijo2 = new Resolver();
+                    var Post2 = Postfijo2.CambiarPostfijo(LECTOR_DE_CADENA);
+                    LECTOR_DE_CADENA = string.Empty;
+                    if (Post2 != "Error")
+                    {
+                        var Resultado = Postfijo2.evaluarResultado(Post2);
+                    }
+                    else
+                    {
+                        //error
+                    }
+                    break;
+                case "string":
+                    LECTOR_DE_CADENA = string.Empty;
+                    foreach (var item in LISTA_TOKENS)
+                    {
+                        if (item.Cadena != ";")
+                        {
+                            try
+                            {
+                                int Er = int.Parse(item.Cadena);
+                                //error
+                            }
+                            catch (Exception)
+                            {
+                                if (item.Cadena != "true" || item.Cadena != "false")
+                                {
+                                    LECTOR_DE_CADENA += item.Cadena;
+                                    CuantasVariablesMeComi++;
+                                }
+                                else
+                                {
+                                    //error
+                                }
+                            }
+                        }
+                        else
+                        {
+                            CuantasVariablesMeComi++;
+                            break;
+                        }
+                    }
+
+                    break;
+                case "bool":
+                    LECTOR_DE_CADENA = string.Empty;
+                    foreach (var item in LISTA_TOKENS)// no termine de sacar los tokens ya leidos
+                    {
+                        if (item.Cadena != ";")
+                        {
+                            if (item.Cadena == "true" || item.Cadena == "false")
+                            {
+                                LECTOR_DE_CADENA += item.Cadena;
+                                CuantasVariablesMeComi++;
+                            }
+                            else
+                            {
+                                //error
+                            }
+                        }
+                        else
+                        {
+                            CuantasVariablesMeComi++;
+                            break;
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        //public void AgregarVariables(string LectorCadena)
+        //{
+
+        //}
+
+
+
+        //public void VariableMultiDeclaracion(string LectorCadena)
+        //{
+        //    //aqui voy a definir puras variables y crear ambito
+
+        //    var quitarTokns = 0;
+        //    foreach (var item in LISTA_TOKENS)
+        //    {
+        //        if (item.Cadena != ";")
+        //        {
+        //            LectorCadena += item.Cadena+" ";
+        //            CuantasVariablesMeComi++;
+        //        }
+        //        else
+        //        {
+        //            CuantasVariablesMeComi++;
+        //            break;
+        //        }
+        //    }
+
+        //    var Lista_Variables = new List<string>();
+        //    var vecLectorCad = LectorCadena.Split(' ');
+        //    var Tipo_Variable = vecLectorCad[0];
+        //    for (int i = 1; i < vecLectorCad.Length; i++)
+        //    {
+        //        if (vecLectorCad[i] != "," && vecLectorCad[i] != "")
+        //        {
+        //            Lista_Variables.Add(vecLectorCad[i]);
+        //        }
+        //    }
+        //    quitarTokns = CuantasVariablesMeComi;
+        //    while (quitarTokns>0)
+        //    {
+        //        LISTA_TOKENS.Dequeue();
+        //        quitarTokns--;
+        //    }
+        //    foreach (var item in Lista_Variables)
+        //    {
+        //        var lista_Variables_Declaradas = new List<string>();
+        //        Ambitos NuevoAmbitoVariable = new Ambitos();
+        //        NuevoAmbitoVariable.AMBITO.Add("Variable: "+item+" Tipo: "+Tipo_Variable+"\n", lista_Variables_Declaradas);
+        //        LISTA_DE_AMBITOS.Add(NuevoAmbitoVariable);
+        //    }
+
+        //}
+
+        //public void VariableVecMultiDeclaracion(string LectorCadena)
+        //{
+        //    //aqui voy a definir puras variables y crear ambito
+
+        //    var quitarTokns = 0;
+        //    foreach (var item in LISTA_TOKENS)
+        //    {
+        //        if (item.Cadena != ";" && item.Cadena != "[]")
+        //        {
+        //            LectorCadena += item.Cadena + " ";
+        //            quitarTokns++;
+        //        }
+        //        else if (item.Cadena == "[]")
+        //        {
+        //            quitarTokns++;
+        //        }
+        //        else
+        //        {
+        //            quitarTokns++;
+        //            break;
+        //        }
+        //    }
+
+        //    var Lista_Variables = new List<string>();
+        //    var vecLectorCad = LectorCadena.Split(' ');
+        //    var Tipo_Variable = vecLectorCad[0];
+        //    for (int i = 1; i < vecLectorCad.Length; i++)
+        //    {
+        //        if (vecLectorCad[i] != "," && vecLectorCad[i] != "" && vecLectorCad[i] != "[]")
+        //        {
+        //            Lista_Variables.Add(vecLectorCad[i]);
+        //        }
+        //    }
+
+        //    while (quitarTokns > 0)
+        //    {
+        //        LISTA_TOKENS.Dequeue();
+        //        quitarTokns--;
+        //    }
+        //    LECTOR_DE_CADENA = string.Empty;
+        //    foreach (var item in Lista_Variables)
+        //    {
+        //        var lista_Variables_Declaradas = new List<string>();
+        //        Ambitos NuevoAmbitoVariable = new Ambitos();
+        //        NuevoAmbitoVariable.AMBITO.Add("Variable: " + item + " Tipo: " + Tipo_Variable+"[]" + "\n", lista_Variables_Declaradas);
+        //        LISTA_DE_AMBITOS.Add(NuevoAmbitoVariable);
+        //    }
+        //}
 
     }
 }
