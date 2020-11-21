@@ -8,95 +8,102 @@ namespace Proyecto_Compis
 {
    public class ResolverDecimal
     {
-        public string CambiarPostfijo(string infijo)
+        public List<string> CambiarPostfijo(List<PropiedadesDePalabras> TokensOperando)
         {
-            int tamanio = infijo.Length;
-            Stack<char> pila = new Stack<char>();
-            StringBuilder postfijo = new StringBuilder();
-            for (int i = 0; i < tamanio; i++)
+            //var vec = infijo.Split(' ');
+            //int tamanio = infijo.Length;
+            Stack<string> pila = new Stack<string>();
+            List<string> postfijo = new List<string>();
+            for (int i = 0; i < TokensOperando.Count; i++)
             {
-                if ((infijo[i] >= '0') && (infijo[i] <= '9') || infijo[i] =='.')
+                if (TokensOperando[i].Nombre == "DECIMAL" || TokensOperando[i].Nombre == "NUMERO")
                 {
-                    postfijo.Append(infijo[i]);
+                    postfijo.Add(TokensOperando[i].Cadena);
                 }
-                else if (infijo[i] == '(')
+                else if (TokensOperando[i].Cadena == "(")
                 {
-                    pila.Push(infijo[i]);
+                    pila.Push(TokensOperando[i].Cadena);
                 }
-                else if ((infijo[i] == '*') || (infijo[i] == '+') || (infijo[i] == '-') || (infijo[i] == '/'))
+                else if ((TokensOperando[i].Cadena == "*") || (TokensOperando[i].Cadena == "+") || (TokensOperando[i].Cadena == "-") || (TokensOperando[i].Cadena == "/"))
                 {
-                    while ((pila.Count > 0) && (pila.Peek() != '('))
+                    while ((pila.Count > 0) && (pila.Peek() != "("))
                     {
-                        if (precedenciadeoperadores(pila.Peek(), infijo[i]))
+                        if (precedenciadeoperadores(pila.Peek(), TokensOperando[i].Cadena))
                         {
-                            postfijo.Append(pila.Pop());
+                            postfijo.Add(pila.Pop());
                         }
                         else
                         {
                             break;
                         }
                     }
-                    pila.Push(infijo[i]);
+                    pila.Push(TokensOperando[i].Cadena);
                 }
-                else if (infijo[i] == ')')
+                else if (TokensOperando[i].Cadena == ")")
                 {
-                    while ((pila.Count > 0) && (pila.Peek() != '('))
+                    while ((pila.Count > 0) && (pila.Peek() != "("))
                     {
-                        postfijo.Append(pila.Pop());
+                        postfijo.Add(pila.Pop());
                     }
                     if (pila.Count > 0)
                         pila.Pop(); //quita el parentesis izquierdo de la pila
                 }
                 else
                 {
-                    return "Error";
+                    while (postfijo.Count > 0)
+                    {
+                        postfijo.RemoveAt(0);
+                    }
+                    postfijo.Add("Error");
+                    return postfijo;
                 }
             }
             while (pila.Count > 0)
             {
-                postfijo.Append(pila.Pop());
+                postfijo.Add(pila.Pop());
             }
-            return postfijo.ToString();
+            return postfijo;
         }
-        public bool precedenciadeoperadores(char top, char p_2)
+        public bool precedenciadeoperadores(string top, string p_2)
         {
-            if (top == '+' && p_2 == '*') // + tiene menor precedencia que *
+            if (top == "+" && p_2 == "*") // + tiene menor precedencia que *
                 return false;
-            if (top == '*' && p_2 == '-') // * tiene mayor precedencia que -
+            if (top == "*" && p_2 == "-") // * tiene mayor precedencia que -
                 return true;
-            if (top == '+' && p_2 == '-') // + tiene la misma precedencia que +
+            if (top == "+" && p_2 == "-") // + tiene la misma precedencia que +
                 return true;
             return true;
         }
-        public int evaluarResultado(string posfija)
+        public double evaluarResultado(List<string> posfija)
         {
-            Stack<int> pilaResultado = new Stack<int>();
-            int tama = posfija.Length;
-            for (int i = 0; i < tama; i++)
+            Stack<double> pilaResultado = new Stack<double>();
+            //var tamanio = posfija
+            //int tama = posfija.Length;
+            for (int i = 0; i < posfija.Count; i++)
             {
-                if ((posfija[i] == '*') || (posfija[i] == '+') || (posfija[i] == '-') || (posfija[i] == ' '))
+                if ((posfija[i] == "*") || (posfija[i] == "+") || (posfija[i] == "-") || (posfija[i] == "/"))
                 {
-                    int resz = operador(pilaResultado.Pop(), pilaResultado.Pop(), posfija[i]);
+                    double resz = operador(pilaResultado.Pop(), pilaResultado.Pop(), posfija[i]);
                     pilaResultado.Push(resz);
                 }
-                else if ((posfija[i] >= '0') || (posfija[i] <= '9'))
+                else //if ((posfija.Peek() >= 0) || (posfija.Peek() <= '9'))
                 {
-                    pilaResultado.Push((int)(posfija[i] - '0'));
+                    pilaResultado.Push((Convert.ToDouble(posfija[i]) - 0));
                 }
             }
-            return pilaResultado.Pop();
+            return Convert.ToDouble(pilaResultado.Pop());
         }
-        public int operador(int p, int p_2, char p_3)
+        public double operador(double p, double p_2, string p_3)
         {
             switch (p_3)
             {
-                case '+':
+                case "+":
                     return p_2 + p;
-                case '-':
+                case "-":
                     return p_2 - p;
-                case '*':
+                case "*":
                     return p_2 * p;
-                case '/':
+                case "/":
                     return p_2 / p;
                 default:
                     return -1;

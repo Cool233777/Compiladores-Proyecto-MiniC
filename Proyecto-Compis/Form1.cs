@@ -84,14 +84,30 @@ namespace Proyecto_Compis
             var Resultado_De_Sintaxis = sintax.Ejecutar_Analizador();
             AnalizadorSemántico Semantico = new AnalizadorSemántico(Lista_Tokens);
              Semantico.DefinirAmbitos();
-            var lista = Semantico.RegresarAmbitos();
-            //using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
-            //{
-            //    using (var escritor = new StreamWriter(Archivo_Salida))
-            //    {
-            //        escritor.Write(Resultado_De_Sintaxis);
-            //    }
-            //}
+            var listaAmbitos = Semantico.RegresarAmbitos();
+            var listaErrores = Semantico.RegresarErrores();
+            using (var Archivo_Salida = new FileStream(Path.GetFullPath("Archivo de salida.out"), FileMode.Create))
+            {
+                using (var escritor = new StreamWriter(Archivo_Salida))
+                {
+                    foreach (var item in listaErrores)
+                    {
+                        escritor.Write("/////// \n" + item + "/////// \n");
+                    }
+                    foreach (var item in listaAmbitos)
+                    {
+                        var Llave = item.AMBITO.ElementAt(0).Key;
+                        var Valor = item.AMBITO.ElementAt(0).Value.ElementAt(0)+"\n";
+                        var Indice = item.AMBITO.ElementAt(0).Value.Count;
+                        if (Indice>1)
+                        {
+                            Valor += item.AMBITO.ElementAt(0).Value.ElementAt(Indice - 1) + "\n";
+                        }
+                        escritor.Write("/////// \n"+Llave+Valor+ "/////// \n");
+                    }
+                   // escritor.Write(Resultado_De_Sintaxis);
+                }
+            }
         }
     }
 }

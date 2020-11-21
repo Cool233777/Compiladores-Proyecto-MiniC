@@ -24,6 +24,7 @@ namespace Proyecto_Compis
         public static Regex DEFINICION_FUNCION = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* (\()");
         public static Regex DEFINICION_FUNCION_EN_INTERFAZ = new Regex(@"^(int|double|bool|string) ([a-z]|[A-Z])+([0-9])* (\() ");
         public static Regex DEFINICION_CONSTANTE = new Regex(@"^const ");
+        public static Regex DEFINICION_CONSTANTE_METODO = new Regex(@"^const (int|double|bool|string) ([a-z]|[A-Z])+([0-9])* ; $");
         public static Regex DEFINICION_ASIGNACION_DE_VALOR = new Regex(@"^([a-z]|[A-Z])+([0-9])* (\=) ");
         //public static Regex DEFINICION_CONSTANTE_INT = new Regex(@"^const (int) ([a-z]|[A-Z])+[0-9]* (=)  ; $");
         //public static Regex DEFINICION_CONSTANTE_DOUBLE = new Regex(@"^const (double) ([a-z]|[A-Z])+[0-9]* (=)  ; $");
@@ -36,7 +37,10 @@ namespace Proyecto_Compis
         public static int CuantasVariablesMeComi = 0;
         public static Dictionary<string, string> LISTA_ID_VARIABLES = new Dictionary<string, string>();
         public static int CorrimientoTkMetodo = 0;
-
+        public static int CorrimientoTkMetodoFaseAnterior = 0;
+        public static bool PrimeraVezMetodo = true;
+        public static int CorriminetoNuevosTokens = 0;
+        public static List<string> LISTA_DE_ERRORES = new List<string>();
         public AnalizadorSemántico(List<PropiedadesDePalabras> Tokns)
         {
             foreach (var item in Tokns)
@@ -50,6 +54,11 @@ namespace Proyecto_Compis
         public List<Ambitos> RegresarAmbitos()
         {
             return LISTA_DE_AMBITOS;
+        }
+
+        public List<string> RegresarErrores()
+        {
+            return LISTA_DE_ERRORES;
         }
 
         public void DefinirAmbitos()
@@ -116,6 +125,10 @@ namespace Proyecto_Compis
                 else if (CuantasVariablesMeComi != 0)
                 {
                     CuantasVariablesMeComi--;
+                }
+                else if (item.Cadena == "$")
+                {
+                    //termine de ver todos los tokens
                 }
             }
         }
@@ -215,6 +228,7 @@ namespace Proyecto_Compis
             var quitarTokens = 0;
             CuantasVariablesMeComi++;//remover (
             var Parametros_Declarados = new List<string>();//REVISAR SI SE PUEDE HACER UN METODO PARA AHORRAR CODIGO
+            var LugarDeAmbito = new List<string>();
             //recorrer la lista global de tokens hasta encontrar un }
             foreach (var item in LISTA_TOKENS)
             {
@@ -226,6 +240,10 @@ namespace Proyecto_Compis
                     if (DEFINICION_VARIABLE_PARAMETRO.IsMatch(LECTOR_DE_CADENA) || DEFINICION_VARIABLE_VECTOR_PARAMETRO.IsMatch(LECTOR_DE_CADENA))
                     {
                         Parametros_Declarados.Add("Parametro: " + LECTOR_DE_CADENA + "\n");
+                        Ambitos NuevoAmbito = new Ambitos();
+                        LugarDeAmbito.Add("Ambito: " + ID_Metodo);
+                        NuevoAmbito.AMBITO.Add("Parametro: " + LECTOR_DE_CADENA, LugarDeAmbito);
+                        LISTA_DE_AMBITOS.Add(NuevoAmbito);
                         LECTOR_DE_CADENA = string.Empty;
                     }
                 }
@@ -250,90 +268,133 @@ namespace Proyecto_Compis
             var quitarTokens2 = 0;
             var CorrerVariables2 = 0;
             LISTA_TOKENS.Dequeue();//{//hasta aqui voy bien
+            var correrEnAsignacionDeVar = 0;
+            var lista_tks = new Queue<PropiedadesDePalabras>();
             foreach (var item in LISTA_TOKENS)
             {
-                //if (quitarTokens2 == 0)
-                //{
-                if (item.Cadena != "}")//correr tokens por comer
-                {
-                    //verificar variables que se van a crear
-                    LECTOR_DE_CADENA += item.Cadena;
-                    LECTOR_DE_CADENA += " ";
-                    CuantasVariablesMeComi++;
-                    CorrerVariables2++;
-                    CorrimientoTkMetodo++;
-                    if (DEFINICION_ASIGNACION_DE_VALOR.IsMatch(LECTOR_DE_CADENA))
-                    {
-                        if (ComprobarExistencia(LECTOR_DE_CADENA, ID_Metodo))
-                        {
-                            ComprobacionDeTipos(LECTOR_DE_CADENA);
-                            LECTOR_DE_CADENA = string.Empty;
-                            quitarTokens2 = CorrerVariables2;
-                            
-                        }
-                        else
-                        {
-                            LECTOR_DE_CADENA = string.Empty;
-                            //error
-                        }
-                    }
-                    else if (DEFINICION_VARIABLE.IsMatch(LECTOR_DE_CADENA))
-                    {
-                        if (ComprobarExistenciaCreacionVar(LECTOR_DE_CADENA, ID_Metodo))
-                        {
-                            VariableDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
-                            LECTOR_DE_CADENA = string.Empty;
-                            quitarTokens2 = CorrerVariables2;
-                        }
-                        else
-                        {
-                            LECTOR_DE_CADENA = string.Empty;
-                            //error
-                        }
-
-                    }
-                    else if (DEFINICION_VARIABLE_VECTOR.IsMatch(LECTOR_DE_CADENA))
-                    {
-                        if (ComprobarExistenciaCreacionVar(LECTOR_DE_CADENA, ID_Metodo))
-                        {
-                            VariableVecDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
-                            LECTOR_DE_CADENA = string.Empty;
-                            quitarTokens2 = CorrerVariables2;
-
-                        }
-                        else
-                        {
-                            LECTOR_DE_CADENA = string.Empty;
-                            //error
-                        }
-                    }
-                    //instanciar variables creadas para operaciones
-                }
-                else if (item.Cadena == "}")
-                {
-                    CuantasVariablesMeComi++;
-                    CorrerVariables2++;
-                    //CorrimientoTkMetodo++;
-                    break;
-                }
-                //}
-                //else if (item.Cadena == ";")
-                //{
-                //    quitarTokens2--;
-                //    //CorrimientoTkMetodo++;
-                //}
+                lista_tks.Enqueue(item);
             }
+            foreach (var item in lista_tks)
+            {
+                if (correrEnAsignacionDeVar == 0)
+                {
+                    if (item.Cadena != "}")//correr tokens por comer
+                    {
+                        //verificar variables que se van a crear
+                        LECTOR_DE_CADENA += item.Cadena;
+                        LECTOR_DE_CADENA += " ";
+                        //LISTA_TOKENS.Dequeue();
+                        CuantasVariablesMeComi++;
+                        quitarTokens2++;
+                        CorrerVariables2++;
+                        CorrimientoTkMetodo++;
+                        CorrimientoTkMetodoFaseAnterior++;
+                        if (DEFINICION_ASIGNACION_DE_VALOR.IsMatch(LECTOR_DE_CADENA))
+                        {
+                            if (ComprobarExistencia(LECTOR_DE_CADENA, ID_Metodo))
+                            {
+                                correrEnAsignacionDeVar = ComprobacionDeTipos(LECTOR_DE_CADENA, ID_Metodo);
+                                CuantasVariablesMeComi += correrEnAsignacionDeVar;
+                                quitarTokens2 += correrEnAsignacionDeVar;
+                                //correrEnAsignacionDeVar = quitarTokens2;
 
-            CuantasVariablesMeComi++;//{
+                                LECTOR_DE_CADENA = string.Empty;
+                                //quitarTokens2 = CorrerVariables2;
+
+                            }
+                            else
+                            {
+                                var vec = LECTOR_DE_CADENA.Split(' ');
+                                LISTA_DE_ERRORES.Add("No se encontro el id: " + vec[0] + " en el metodo: " + ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //error no existe el id ingresado
+
+                            }
+                        }
+                        else if (DEFINICION_VARIABLE.IsMatch(LECTOR_DE_CADENA))
+                        {
+                            if (ComprobarExistenciaCreacionVar(LECTOR_DE_CADENA, ID_Metodo))
+                            {
+                                VariableDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //quitarTokens2 = CorrerVariables2;
+                                //correrEnAsignacionDeVar += 3;
+                            }
+                            else
+                            {
+                                var vec = LECTOR_DE_CADENA.Split(' ');
+                                LISTA_DE_ERRORES.Add("No se encontro el id: " + vec[1] + " en el metodo: " + ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //error
+                            }
+
+                        }
+                        else if (DEFINICION_VARIABLE_VECTOR.IsMatch(LECTOR_DE_CADENA))
+                        {
+                            if (ComprobarExistenciaCreacionVar(LECTOR_DE_CADENA, ID_Metodo))
+                            {
+                                VariableVecDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //quitarTokens2 = CorrerVariables2;
+                                //correrEnAsignacionDeVar += 3;
+                            }
+                            else
+                            {
+                                var vec = LECTOR_DE_CADENA.Split(' ');
+                                LISTA_DE_ERRORES.Add("No se encontro el id: " + vec[2] + " en el metodo: " + ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //error
+                            }
+                        }
+                        else if (DEFINICION_CONSTANTE_METODO.IsMatch(LECTOR_DE_CADENA))
+                        {
+                            if (ComprobarExistenciaCreacionConst(LECTOR_DE_CADENA, ID_Metodo))
+                            {
+                                ConstanteDeclaracionMetodo(LECTOR_DE_CADENA, ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //quitarTokens2 = CorrerVariables2;
+                                //correrEnAsignacionDeVar += 3;
+                            }
+                            else
+                            {
+                                var vec = LECTOR_DE_CADENA.Split(' ');
+                                LISTA_DE_ERRORES.Add("No se encontro el id: " + vec[2] + " en el metodo: " + ID_Metodo);
+                                LECTOR_DE_CADENA = string.Empty;
+                                //error
+                            }
+                        }
+                        //instanciar variables creadas para operaciones
+                    }
+                    else if (item.Cadena == "}")
+                    {
+                        CuantasVariablesMeComi++;
+                        CorrerVariables2++;
+                        //CorrimientoTkMetodo++;
+                        break;
+                    }
+                }
+                else if (item.Cadena == ";")
+                {
+                    correrEnAsignacionDeVar--;
+                    //    quitarTokens2--;
+                    //CorrimientoTkMetodo++;
+                }
+                else
+                {
+                    correrEnAsignacionDeVar--;
+                }
+            }
+            quitarTokens++;
+            //CuantasVariablesMeComi++;//{
             CuantasVariablesMeComi++;//}
-            quitarTokens = CuantasVariablesMeComi;
+            quitarTokens += quitarTokens2;
             while (quitarTokens - 1 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
                 LISTA_TOKENS.Dequeue();
                 quitarTokens--;
             }
             Ambitos NuevoAmbitoMetodo = new Ambitos();
-            NuevoAmbitoMetodo.AMBITO.Add("Metodo: " + ID_Metodo + "\n", Parametros_Declarados);
+            NuevoAmbitoMetodo.AMBITO.Add("Metodo: " + ID_Metodo + " ", Parametros_Declarados);
             LISTA_DE_AMBITOS.Add(NuevoAmbitoMetodo);
         }
 
@@ -414,54 +475,6 @@ namespace Proyecto_Compis
             var quitarTokens = 0;
             //CuantasVariablesMeComi++;
             var lista_Variables_Declaradas = new List<string>();
-            //recorrer la lista global de tokens hasta encontrar un ;
-            //foreach (var item in LISTA_TOKENS)
-            //{
-            //    if (item.Cadena != ";")
-            //    {
-            //        LECTOR_DE_CADENA += item.Cadena;
-            //        var VecDouble = LECTOR_DE_CADENA.Split('.');
-            //        var valorDeConstante = "";
-            //        var IntConst = 0;
-            //        CuantasVariablesMeComi++;
-            //        if (VecDouble.Length > 1)
-            //        {
-            //            valorDeConstante = "double";
-            //        }
-            //        else if (LECTOR_DE_CADENA == "false" || LECTOR_DE_CADENA == "true")
-            //        {
-            //            valorDeConstante = LECTOR_DE_CADENA;
-            //        }
-            //        else
-            //        {
-            //            try
-            //            {
-            //                IntConst = int.Parse(LECTOR_DE_CADENA);
-            //                valorDeConstante = "int";
-            //            }
-            //            catch (Exception)
-            //            {
-            //                valorDeConstante = "string";
-            //            }
-            //        }
-            //        if (TipoConstante == valorDeConstante)
-            //        {
-            //            lista_Variables_Declaradas.Add("Valor: " + LECTOR_DE_CADENA);//verifico que la cadena sea el mismo tipo que el constante
-            //            LECTOR_DE_CADENA = string.Empty;
-            //        }
-            //        else
-            //        {
-            //            //error semantico de asignacion de constante
-            //        }
-
-
-            //    }
-            //    else if (item.Cadena == ";")
-            //    {
-            //        CuantasVariablesMeComi++;
-            //        break;
-            //    }
-            //}
             quitarTokens = CuantasVariablesMeComi;
             while (quitarTokens - 3 > 0)//puede ser 1 o 0, porque consume de ultimo el dolar
             {
@@ -584,6 +597,18 @@ namespace Proyecto_Compis
             LISTA_ID_VARIABLES.Add(ID_Variable, IDMetodo);
         }
 
+        public void ConstanteDeclaracionMetodo(string LectorDeCadena, string ID_Metodo)
+        {
+            var VecConst = LectorDeCadena.Split(' ');//const int id;
+            var IDConstante = VecConst[2];
+            var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: " + ID_Metodo);
+            Ambitos NuevoAmbitoClase = new Ambitos();
+            NuevoAmbitoClase.AMBITO.Add("Constante: " + IDConstante + " Tipo: " + VecConst[1] + "\n", lista_Variables_Declaradas);
+            LISTA_DE_AMBITOS.Add(NuevoAmbitoClase);
+            LISTA_ID_VARIABLES.Add(IDConstante, ID_Metodo);
+        }
+
         public bool ComprobarExistenciaCreacionVar(string LectorCadena, string IDMetodo)
         {
             var NoHayError = false;
@@ -650,6 +675,116 @@ namespace Proyecto_Compis
             return NoHayError;
         }
 
+        public bool ComprobarExistenciaDefinicionVar(string ID_Variable, string IDMetodo)
+        {
+            var NoHayError = false;
+            foreach (var item in LISTA_DE_AMBITOS)
+            {
+                var ambito = item.AMBITO.ElementAt(0);
+                var vecK = ambito.Key.Split(' ');
+                var vecV = ambito.Value.ElementAt(0).Split(' ');//ambito: global
+                var ComprobarVar = vecK[0];
+                if (ComprobarVar == "Variable:")
+                {
+                    if (ID_Variable == vecK[1])
+                    {
+                        if (IDMetodo == vecV[1] || IDMetodo == "Global")
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    //else
+                    //{
+                    //    return false;
+                    //}
+                }
+            }
+
+            return NoHayError;
+        }
+
+        public bool ComprobarExistenciaDefinicionConst(string ID_Variable, string IDMetodo)
+        {
+            var NoHayError = false;
+            foreach (var item in LISTA_DE_AMBITOS)
+            {
+                var ambito = item.AMBITO.ElementAt(0);
+                var vecK = ambito.Key.Split(' ');
+                var vecV = ambito.Value.ElementAt(0).Split(' ');//ambito: global
+                var ComprobarVar = vecK[0];
+                if (ComprobarVar == "Constante:")
+                {
+                    if (ID_Variable == vecK[1])
+                    {
+                        if (IDMetodo == vecV[1] || IDMetodo == "Global")
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    //else
+                    //{
+                    //    return false;
+                    //}
+                }
+            }
+
+            return NoHayError;
+        }
+
+        public bool ComprobarExistenciaCreacionConst(string LectorCadena, string IDMetodo)
+        {
+            var NoHayError = false;
+            var vecLectorCad = LectorCadena.Split(' ');
+            var Tipo_Variable = vecLectorCad[0];
+            var ID_Variable = vecLectorCad[1];
+            var listaVariables = new List<Ambitos>();
+            var lista_Variables_Declaradas = new List<string>();
+            lista_Variables_Declaradas.Add("Ambito: " + IDMetodo);
+            foreach (var item in LISTA_DE_AMBITOS)
+            {
+                var ambito = item.AMBITO.ElementAt(0);
+                var vecK = ambito.Key.Split(' ');
+                var ComprobarVar = vecK[0];
+                if (ComprobarVar == "Const:")
+                {
+                    listaVariables.Add(item);
+                }
+            }
+            foreach (var item2 in LISTA_ID_VARIABLES)
+            {
+                var IDGuardado = item2.Key;
+                var InstanciaGuardado = item2.Value;
+                //var NombreInstancia2 = Vec2[1];//guardo Global
+                if (ID_Variable == IDGuardado)//tienen el mismo ID
+                {
+                    if (IDMetodo != InstanciaGuardado)
+                    {
+                        NoHayError = true;
+                        return NoHayError;
+                    }
+                    else
+                    {
+                        //Error
+                        return NoHayError;
+                    }
+                }
+                else
+                {
+                    NoHayError = true;
+                    return NoHayError;
+                }
+            }
+            return NoHayError;
+        }
+
         public bool ComprobarExistencia(string LectorCadena, string IDMetodo)
         {
             var Existe = false;
@@ -671,22 +806,56 @@ namespace Proyecto_Compis
             return Existe;
         }
 
-        public void ComprobacionDeTipos(string LectorCadena)
+        public int ComprobacionDeTipos(string LectorCadena, string ID_Metodo)
         {
-            while (CorrimientoTkMetodo > 0)// crear una auxiliar de la lista de tokens y otra auxiliar para el contador de asignacion
+            var lista_tks = new Queue<PropiedadesDePalabras>();
+            var correrEnAsignacionDeVar = 0;
+            var correrMetodo = 0;
+            var auxCorrimientos = 0;
+            foreach (var item in LISTA_TOKENS)
             {
-                LISTA_TOKENS.Dequeue();
-                CorrimientoTkMetodo--;
+                lista_tks.Enqueue(item);
             }
+            if (PrimeraVezMetodo)
+            {
+
+                while (CorrimientoTkMetodo > 0)// crear una auxiliar de la lista de tokens y otra auxiliar para el contador de asignacion
+                {
+                    lista_tks.Dequeue();
+                    CorrimientoTkMetodo--;
+                }
+                PrimeraVezMetodo = false;
+
+            }
+            else
+            {
+                auxCorrimientos = CorrimientoTkMetodoFaseAnterior + CorriminetoNuevosTokens;
+                while (auxCorrimientos > 0)// crear una auxiliar de la lista de tokens y otra auxiliar para el contador de asignacion
+                {
+                    lista_tks.Dequeue();
+                    auxCorrimientos--;
+                }
+                //PrimeraVezMetodo = true;
+            }
+
+
+
             var Vec = LectorCadena.Split(' ');
             var IdVariable = Vec[0];
+            var ValorVariable = "";
+            var ListaAUXAmbito = new List<string>();
+            //var ListaAUXSubAmbito = new List<string>();
             var TipoDeVar = "";
             foreach (var item in LISTA_DE_AMBITOS)
             {
                 var VecAmbito = item.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+
                 if (IdVariable == VecAmbito[1])
                 {
                     TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                    //var VecAmbitoVal = item.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                    ListaAUXAmbito = item.AMBITO.ElementAt(0).Value; //Ambito: ID_Metodo
+                                                                     //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
                     break;
                 }
             }
@@ -695,118 +864,509 @@ namespace Proyecto_Compis
             {
                 case "int"://solo puede ser suma de numeros
                     LECTOR_DE_CADENA = string.Empty;
-                    foreach (var item in LISTA_TOKENS)
+                    var cantidadDeTokensAoperar = 0;
+                    var listaTokensOperando = new List<PropiedadesDePalabras>();
+                    var Error4 = true;
+                    var existeUnVar = true;
+                    var ListaIDNoDeclarados = new List<string>();
+                    foreach (var item in lista_tks)
                     {
-                        if (item.Cadena != ";")
+                        
+                        if (item.Cadena != ";" && Error4 && (item.Nombre == "NUMERO" || item.Nombre == "OPERADOR" || item.Nombre == "DECIMAL" || item.Cadena == ")" || item.Cadena == "("))
                         {
-                            LECTOR_DE_CADENA += item.Cadena;
-                            CuantasVariablesMeComi++;
+                            //LECTOR_DE_CADENA += item.Cadena;
+                            listaTokensOperando.Add(item);
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            cantidadDeTokensAoperar++;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error4 == true)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error4 == false&&existeUnVar==true)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba int en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error4 == false && existeUnVar == false)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            foreach (var item2 in ListaIDNoDeclarados)
+                            {
+                                LISTA_DE_ERRORES.Add("El ID: " + item2 + ",no esta declarada");
+                            }
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Nombre == "IDENTIFICADOR")//Como es un ID, voy a ver si existe y luego su valor
+                        {
+                            //var existeUnVar = ComprobarExistenciaDefinicionVar(item.Cadena, ID_Metodo);
+                            
+                            if (ComprobarExistenciaDefinicionVar(item.Cadena, ID_Metodo))
+                            {
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                CorriminetoNuevosTokens++;
+                                foreach (var item2 in LISTA_DE_AMBITOS)
+                                {
+                                    var VecAmbito = item2.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+                                    //var ValorDeVAR = new string[2];
+                                    if (item.Cadena == VecAmbito[1])
+                                    {
+                                        //TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                                        var VecAmbitoKey = item2.AMBITO.ElementAt(0).Key.Split(' ');//Var: id Tipo: int
+                                        var VecAmbitoVal = item2.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                                        if (VecAmbitoKey[3] == "int\n")
+                                        {
+                                            var ultimoIndice = item2.AMBITO.ElementAt(0).Value.Count;
+                                            var ListaAUXSubAmbito = item2.AMBITO.ElementAt(0).Value.ElementAt(ultimoIndice - 1); //Val: ultimo valor asignado
+                                            var ValorDeVAR = ListaAUXSubAmbito.Split(' ');
+                                            item.Cadena = ValorDeVAR[1];
+                                            item.Nombre = "NUMERO";
+                                            listaTokensOperando.Add(item);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            LISTA_DE_ERRORES.Add("Error de asignacion, el ID: " + IdVariable + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
+                                        }
+                                        //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
+                                        //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
+                                    }
+                                }
+
+                            }
+                            else if (ComprobarExistenciaDefinicionConst(item.Cadena, ID_Metodo))
+                            {
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                CorriminetoNuevosTokens++;
+                                foreach (var item2 in LISTA_DE_AMBITOS)
+                                {
+                                    var VecAmbito = item2.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+                                    //var ValorDeVAR = new string[2];
+                                    if (item.Cadena == VecAmbito[1])
+                                    {
+                                        //TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                                        var VecAmbitoKey = item2.AMBITO.ElementAt(0).Key.Split(' ');//Var: id Tipo: int
+                                        var VecAmbitoVal = item2.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                                        if (VecAmbitoKey[3] == "int\n" || VecAmbitoKey[3] == "double\n")
+                                        {
+                                            var ultimoIndice = item2.AMBITO.ElementAt(0).Value.Count;
+                                            var ListaAUXSubAmbito = item2.AMBITO.ElementAt(0).Value.ElementAt(ultimoIndice - 1); //Val: ultimo valor asignado
+                                            var ValorDeVAR = ListaAUXSubAmbito.Split(' ');
+                                            item.Cadena = ValorDeVAR[1];
+                                            item.Nombre = "NUMERO";
+                                            listaTokensOperando.Add(item);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            LISTA_DE_ERRORES.Add("Error de operacion, el ID: " + IdVariable + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
+                                        }
+                                        //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
+                                        //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //error no existe el identificador
+                                ListaIDNoDeclarados.Add(item.Cadena);
+                                existeUnVar = false;
+                                Error4 = false;
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                CorriminetoNuevosTokens++;
+                            }
                         }
                         else
                         {
-                            CuantasVariablesMeComi++;
-                            break;
+                            Error4 = false;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
                         }
                     }
-                    LECTOR_DE_CADENA = LECTOR_DE_CADENA.Trim();
-                    Resolver Postfijo = new Resolver();
-                    var Post = Postfijo.CambiarPostfijo(LECTOR_DE_CADENA);
-                    LECTOR_DE_CADENA = string.Empty;
-                    if (Post != "Error")
+                    if (Error4)
                     {
-                        var Resultado = Postfijo.evaluarResultado(Post);
+                        //LECTOR_DE_CADENA = LECTOR_DE_CADENA.Trim();
+                        Resolver Postfijo = new Resolver();
+                        var Post = Postfijo.CambiarPostfijo(listaTokensOperando);
+                        LECTOR_DE_CADENA = string.Empty;
+                        if (Post.ElementAt(0) != "Error")
+                        {
+                            var Resultado = Postfijo.evaluarResultado(Post);
+                            ListaAUXAmbito.Add("Valor: " + Resultado.ToString());
+                        }
+                        else
+                        {
+                            //var vec = LECTOR_DE_CADENA.Split(' ');
+                            //LISTA_DE_ERRORES.Add("Error de operacion, se esperaba int en: " + IdVariable + " en el metodo: " + ID_Metodo);
+                            ////error
+                        }
                     }
-                    else
-                    {
-                        //error
-                    }
+
                     break;
                 case "double":
                     LECTOR_DE_CADENA = string.Empty;
-                    foreach (var item in LISTA_TOKENS)
+                    listaTokensOperando = new List<PropiedadesDePalabras>();
+                    var Error3 = true;
+                    var existeUnVar3 = true;
+                    var ListaIDNoDeclarados3 = new List<string>();
+                    foreach (var item in lista_tks)
                     {
-                        if (item.Cadena != ";")
+                        if (item.Cadena != ";" && Error3 && (item.Nombre == "DECIMAL" || item.Nombre == "OPERADOR" || item.Nombre == "NUMERO" || item.Cadena == ")" || item.Cadena == "("))
                         {
-                            LECTOR_DE_CADENA += item.Cadena;
-                            CuantasVariablesMeComi++;
+                            //LECTOR_DE_CADENA += item.Cadena;
+                            listaTokensOperando.Add(item);
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            //cantidadDeTokensAoperar++;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error3 == true)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error3 == false)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba double en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Nombre == "IDENTIFICADOR")//Como es un ID, voy a ver si existe y luego su valor
+                        {
+                            if (ComprobarExistenciaDefinicionVar(item.Cadena, ID_Metodo))
+                            {
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                CorriminetoNuevosTokens++;
+                                foreach (var item2 in LISTA_DE_AMBITOS)
+                                {
+                                    var VecAmbito = item2.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+                                    //var ValorDeVAR = new string[2];
+                                    if (item.Cadena == VecAmbito[1])
+                                    {
+                                        //TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                                        var VecAmbitoKey = item2.AMBITO.ElementAt(0).Key.Split(' ');//Var: id Tipo: int
+                                        var VecAmbitoVal = item2.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                                        if (VecAmbitoKey[3] == "int\n" || VecAmbitoKey[3] == "double\n")
+                                        {
+                                            var ultimoIndice = item2.AMBITO.ElementAt(0).Value.Count;
+                                            var ListaAUXSubAmbito = item2.AMBITO.ElementAt(0).Value.ElementAt(ultimoIndice - 1); //Val: ultimo valor asignado
+                                            var ValorDeVAR = ListaAUXSubAmbito.Split(' ');
+                                            item.Cadena = ValorDeVAR[1];
+                                            item.Nombre = "DECIMAL";
+                                            listaTokensOperando.Add(item);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            LISTA_DE_ERRORES.Add("Error de asignacion, el ID: " + IdVariable + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                        }
+                                        //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
+                                        //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
+                                    }
+                                }
+
+                            }
+                            else if (ComprobarExistenciaDefinicionConst(item.Cadena, ID_Metodo))
+                            {
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                CorriminetoNuevosTokens++;
+                                foreach (var item2 in LISTA_DE_AMBITOS)
+                                {
+                                    var VecAmbito = item2.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+                                    //var ValorDeVAR = new string[2];
+                                    if (item.Cadena == VecAmbito[1])
+                                    {
+                                        //TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                                        var VecAmbitoKey = item2.AMBITO.ElementAt(0).Key.Split(' ');//Var: id Tipo: int
+                                        var VecAmbitoVal = item2.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                                        if (VecAmbitoKey[3] == "int\n" || VecAmbitoKey[3] == "double\n")
+                                        {
+                                            var ultimoIndice = item2.AMBITO.ElementAt(0).Value.Count;
+                                            var ListaAUXSubAmbito = item2.AMBITO.ElementAt(0).Value.ElementAt(ultimoIndice - 1); //Val: ultimo valor asignado
+                                            var ValorDeVAR = ListaAUXSubAmbito.Split(' ');
+                                            item.Cadena = ValorDeVAR[1];
+                                            item.Nombre = "DECIMAL";
+                                            listaTokensOperando.Add(item);
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            LISTA_DE_ERRORES.Add("Error de operacion, el ID: " + IdVariable + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                        }
+                                        //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
+                                        //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
+                                    }
+                                }
+                            }
+                            ////CuantasVariablesMeComi++;
+                            //correrEnAsignacionDeVar++;
+                            //CorrimientoTkMetodo++;
+                            //CorriminetoNuevosTokens++;
+                            ////CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error3 == false && existeUnVar3 == true)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba int en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error3 == false && existeUnVar3 == false)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            foreach (var item2 in ListaIDNoDeclarados3)
+                            {
+                                LISTA_DE_ERRORES.Add("El ID: " + item2 + ",no esta declarada");
+                            }
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
                         }
                         else
                         {
-                            CuantasVariablesMeComi++;
-                            break;
+                            //error no existe el identificador
+                            ListaIDNoDeclarados3.Add(item.Cadena);
+                            existeUnVar = false;
+                            Error4 = false;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+
                         }
+
                     }
-                    LECTOR_DE_CADENA = LECTOR_DE_CADENA.Trim();
-                    Resolver Postfijo2 = new Resolver();
-                    var Post2 = Postfijo2.CambiarPostfijo(LECTOR_DE_CADENA);
-                    LECTOR_DE_CADENA = string.Empty;
-                    if (Post2 != "Error")
+                    if (Error3)
                     {
-                        var Resultado = Postfijo2.evaluarResultado(Post2);
+                        //LECTOR_DE_CADENA = LECTOR_DE_CADENA.Trim();
+                        ResolverDecimal Postfijo2 = new ResolverDecimal();
+                        var Post2 = Postfijo2.CambiarPostfijo(listaTokensOperando);
+                        LECTOR_DE_CADENA = string.Empty;
+                        if (Post2.ElementAt(0) != "Error")
+                        {
+                            var Resultado = Postfijo2.evaluarResultado(Post2);
+                            ListaAUXAmbito.Add("Valor: " + Resultado.ToString());
+                        }
+                        //else
+                        //{
+                        //    LISTA_DE_ERRORES.Add("Error de operacion, se esperaba double en: " + IdVariable + " en el metodo: " + ID_Metodo);
+                        //    //error
+                        //}
                     }
-                    else
-                    {
-                        //error
-                    }
+
                     break;
                 case "string":
                     LECTOR_DE_CADENA = string.Empty;
-                    foreach (var item in LISTA_TOKENS)
+                    var Error2 = true;
+                    var existeUnVar2 = true;
+                    var ListaIDNoDeclarados2 = new List<string>();
+                    foreach (var item in lista_tks)
                     {
-                        if (item.Cadena != ";")
+                        if (item.Cadena != ";" && Error2)
                         {
                             try
                             {
                                 int Er = int.Parse(item.Cadena);
+                                Error2 = false;
+                                if (item.Cadena != ";")
+                                {
+                                    correrEnAsignacionDeVar++;
+                                    CorrimientoTkMetodo++;
+                                    //CorrimientoTkMetodoFaseAnterior++;
+                                    CorriminetoNuevosTokens++;
+                                    // Ignorar = true;
+                                }
+                                else if (item.Cadena == ";")
+                                {
+                                    correrEnAsignacionDeVar++;
+                                    CorrimientoTkMetodo++;
+                                    //CorrimientoTkMetodoFaseAnterior++;
+                                    CorriminetoNuevosTokens++;
+                                    LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba string en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                                    break;
+                                }
                                 //error
                             }
                             catch (Exception)
                             {
-                                if (item.Cadena != "true" || item.Cadena != "false")
+                                if (item.Nombre == "OPERADOR" && item.Cadena == "+")
                                 {
                                     LECTOR_DE_CADENA += item.Cadena;
-                                    CuantasVariablesMeComi++;
+                                }
+                                else if (item.Nombre == "CADENA" && Error2)
+                                {
+                                    LECTOR_DE_CADENA += item.Cadena;
+                                    //ListaAUXAmbito.Add("Valor: " + LECTOR_DE_CADENA);
+                                    //CuantasVariablesMeComi++;
+                                    correrEnAsignacionDeVar++;
+                                    CorrimientoTkMetodo++;
+                                    CorriminetoNuevosTokens++;
+                                    //CorrimientoTkMetodoFaseAnterior++;
                                 }
                                 else
                                 {
-                                    //error
+                                    Error2 = false;
+                                    if (item.Cadena != ";")
+                                    {
+                                        correrEnAsignacionDeVar++;
+                                        CorrimientoTkMetodo++;
+                                        //CorrimientoTkMetodoFaseAnterior++;
+                                        CorriminetoNuevosTokens++;
+                                        // Ignorar = true;
+                                    }
+                                    else if (item.Cadena == ";")
+                                    {
+                                        correrEnAsignacionDeVar++;
+                                        CorrimientoTkMetodo++;
+                                        //CorrimientoTkMetodoFaseAnterior++;
+                                        CorriminetoNuevosTokens++;
+                                        LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba string en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        else if (item.Cadena == ";" && Error2 == false)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba string en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error2 == true)
+                        {
+                            ListaAUXAmbito.Add("Valor: " + LECTOR_DE_CADENA);
+                            LECTOR_DE_CADENA = string.Empty;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            break;
+                        }
                         else
                         {
-                            CuantasVariablesMeComi++;
-                            break;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
                         }
                     }
 
                     break;
                 case "bool":
                     LECTOR_DE_CADENA = string.Empty;
-                    foreach (var item in LISTA_TOKENS)// no termine de sacar los tokens ya leidos
+                    var Error = true;
+                    var Ignorar = false;
+                    var existeUnVar4 = true;
+                    var ListaIDNoDeclarados4 = new List<string>();
+                    foreach (var item in lista_tks)// no termine de sacar los tokens ya leidos
                     {
-                        if (item.Cadena != ";")
+                        if (item.Cadena != ";" && Error)
                         {
                             if (item.Cadena == "true" || item.Cadena == "false")
                             {
                                 LECTOR_DE_CADENA += item.Cadena;
-                                CuantasVariablesMeComi++;
+                                //CuantasVariablesMeComi++;
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                //CorrimientoTkMetodoFaseAnterior++;
+                                CorriminetoNuevosTokens++;
+                                ListaAUXAmbito.Add("Valor: " + LECTOR_DE_CADENA);
                             }
                             else
                             {
+                                Error = false;
+                                if (item.Cadena != ";")
+                                {
+                                    correrEnAsignacionDeVar++;
+                                    CorrimientoTkMetodo++;
+                                    //CorrimientoTkMetodoFaseAnterior++;
+                                    CorriminetoNuevosTokens++;
+                                    Ignorar = true;
+                                }
+                                else if (item.Cadena == ";")
+                                {
+                                    correrEnAsignacionDeVar++;
+                                    CorrimientoTkMetodo++;
+                                    //CorrimientoTkMetodoFaseAnterior++;
+                                    CorriminetoNuevosTokens++;
+                                    LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba bool en: " + IdVariable + " en el metodo: " + ID_Metodo);
+                                    break;
+                                }
+
                                 //error
                             }
                         }
+                        else if (item.Cadena == ";" && Error == false)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba bool en: " + IdVariable + " en el metodo: " + ID_Metodo);
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Cadena == ";" && Error == true)
+                        {
+                            //CuantasVariablesMeComi++;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            break;
+                            //CorrimientoTkMetodoFaseAnterior++;
+                        }
                         else
                         {
-                            CuantasVariablesMeComi++;
-                            break;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
                         }
                     }
                     break;
                 default:
                     break;
             }
+            return correrEnAsignacionDeVar;
         }
 
         //public void AgregarVariables(string LectorCadena)
