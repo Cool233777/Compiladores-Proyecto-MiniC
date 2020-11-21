@@ -23,9 +23,20 @@ sigue leyendo normal. Cuando termina de compilar si encuentra un error muestra e
 
 Se adjunta la tabla de análisis para el funcionamiento del proyecto:
 
+TERMINA TABLA DE ANÁLISIS, de igual manera se adjunta la tabla de análisis "SLR.txt" en los archivos del proyecto.
+TERCERA FASE ANALIZADOR SEMÁNTICO 
+Para esta fase se le agregó una porción de gramática
+al SLR para que pudiera invocar funciones. Se agregó
+a la tabla de análisis para que mini #c lo pueda reconocer.
+En este caso sí lo reconoce, pero no se logró hacer la comprobación
+de tipo de los mismos para parámetros.
+En este proyecto se generó la tabla de símbolos, asignación de variables y constantes
+comprobación de tipos al igual que el manejo de operaciones. Las operaciones se manejaron 
+con la calculadora polaca inversa. Para el manejo de errores se tiene que si hay operaciones
+como string más int no se puede, al igual si no está el identificador declarado es un error.
 
-
-
+Para que el proyecto funcione se tiene la tabla de análasis que de igual forma se adjunta en una de las carpetas
+de este.
 n;s19;s11;s15;s16;s17;s18;n;n;n;s10;n;s12;n;n;n;s13;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;1;2;3;8;5;n;9;14;n;4;n;n;6;n;n;n;n;n;7;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n
 n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;acc;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n
 n;s19;s11;s15;s16;s17;s18;n;n;n;s10;n;s12;n;n;n;s13;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;r2;n;20;2;3;8;5;n;9;14;n;4;n;n;6;n;n;n;n;n;7;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n
@@ -214,7 +225,4 @@ r61;s103;n;n;n;n;n;n;s114;n;n;n;n;s68;n;n;n;s96;n;s97;s99;s101;s100;s102;n;n;n;n
 r69;r69;n;n;n;n;n;n;r69;n;n;n;n;r69;r69;n;n;r69;r69;r69;r69;r69;r69;r69;n;n;n;n;n;n;n;n;n;n;r69;r69;r69;r69;r69;r69;r69;r69;r69;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n
 n;n;n;n;n;n;n;n;n;r70;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n
 r66;r66;n;n;n;n;n;n;r66;n;n;n;n;r66;r66;n;n;r66;r66;r66;r66;r66;r66;r66;n;n;n;n;n;n;n;n;n;n;r66;r66;r66;r66;r66;r66;r66;r66;r66;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n;n
-
-
-TERMINA TABLA DE ANÁLISIS, de igual manera se adjunta la tabla de análisis "SLR.txt" en los archivos del proyecto.
 
