@@ -871,7 +871,7 @@ namespace Proyecto_Compis
                     var ListaIDNoDeclarados = new List<string>();
                     foreach (var item in lista_tks)
                     {
-                        
+
                         if (item.Cadena != ";" && Error4 && (item.Nombre == "NUMERO" || item.Nombre == "OPERADOR" || item.Nombre == "DECIMAL" || item.Cadena == ")" || item.Cadena == "("))
                         {
                             //LECTOR_DE_CADENA += item.Cadena;
@@ -892,7 +892,7 @@ namespace Proyecto_Compis
                             break;
                             //CorrimientoTkMetodoFaseAnterior++;
                         }
-                        else if (item.Cadena == ";" && Error4 == false&&existeUnVar==true)
+                        else if (item.Cadena == ";" && Error4 == false && existeUnVar == true)
                         {
                             //CuantasVariablesMeComi++;
                             correrEnAsignacionDeVar++;
@@ -918,7 +918,7 @@ namespace Proyecto_Compis
                         else if (item.Nombre == "IDENTIFICADOR")//Como es un ID, voy a ver si existe y luego su valor
                         {
                             //var existeUnVar = ComprobarExistenciaDefinicionVar(item.Cadena, ID_Metodo);
-                            
+
                             if (ComprobarExistenciaDefinicionVar(item.Cadena, ID_Metodo))
                             {
                                 correrEnAsignacionDeVar++;
@@ -945,7 +945,9 @@ namespace Proyecto_Compis
                                         }
                                         else
                                         {
-                                            LISTA_DE_ERRORES.Add("Error de asignacion, el ID: " + IdVariable + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
+                                            LISTA_DE_ERRORES.Add("Error de asignacion, el ID: " + VecAmbitoKey[1] + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
+                                            Error4 = false;
+                                            break;
                                         }
                                         //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
                                         //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
@@ -979,7 +981,9 @@ namespace Proyecto_Compis
                                         }
                                         else
                                         {
-                                            LISTA_DE_ERRORES.Add("Error de operacion, el ID: " + IdVariable + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
+                                            LISTA_DE_ERRORES.Add("Error de operacion, el ID: " + VecAmbitoKey[1] + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
+                                            Error4 = false;
+                                            break;
                                         }
                                         //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
                                         //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
@@ -989,13 +993,13 @@ namespace Proyecto_Compis
                             else
                             {
                                 //error no existe el identificador
-                                ListaIDNoDeclarados.Add(item.Cadena);
-                                existeUnVar = false;
+                                LISTA_DE_ERRORES.Add("El ID: " + item.Cadena + ", no es de tipo int" + ", en el metodo: " + ID_Metodo);
                                 Error4 = false;
                                 correrEnAsignacionDeVar++;
                                 CorrimientoTkMetodo++;
                                 CorriminetoNuevosTokens++;
                             }
+                            //Error2 = false;
                         }
                         else
                         {
@@ -1091,7 +1095,8 @@ namespace Proyecto_Compis
                                         }
                                         else
                                         {
-                                            LISTA_DE_ERRORES.Add("Error de asignacion, el ID: " + IdVariable + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                            LISTA_DE_ERRORES.Add("Error de asignacion, el ID: " + VecAmbitoKey[1] + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                            break;
                                         }
                                         //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
                                         //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
@@ -1125,13 +1130,24 @@ namespace Proyecto_Compis
                                         }
                                         else
                                         {
-                                            LISTA_DE_ERRORES.Add("Error de operacion, el ID: " + IdVariable + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                            LISTA_DE_ERRORES.Add("Error de operacion, el ID: " + VecAmbitoKey[1] + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                            break;
                                         }
                                         //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
                                         //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
                                     }
                                 }
                             }
+                            else
+                            {
+                                //error no existe el identificador
+                                LISTA_DE_ERRORES.Add("El ID: " + item.Cadena + ", no es de tipo double" + ", en el metodo: " + ID_Metodo);
+                                Error3 = false;
+                                correrEnAsignacionDeVar++;
+                                CorrimientoTkMetodo++;
+                                CorriminetoNuevosTokens++;
+                            }
+                            //Error3 = false;
                             ////CuantasVariablesMeComi++;
                             //correrEnAsignacionDeVar++;
                             //CorrimientoTkMetodo++;
@@ -1144,7 +1160,7 @@ namespace Proyecto_Compis
                             correrEnAsignacionDeVar++;
                             CorrimientoTkMetodo++;
                             CorriminetoNuevosTokens++;
-                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba int en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                            LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba double en: " + IdVariable + ", en el metodo: " + ID_Metodo);
                             break;
                             //CorrimientoTkMetodoFaseAnterior++;
                         }
@@ -1160,6 +1176,21 @@ namespace Proyecto_Compis
                             }
                             break;
                             //CorrimientoTkMetodoFaseAnterior++;
+                        }
+                        else if (item.Nombre == "IDENTIFICADOR" && Error3 == false)
+                        {
+                            Error3 = false;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
+                            LISTA_DE_ERRORES.Add("El ID: " + item.Cadena + ", no es de tipo double, en el metodo: " + ID_Metodo);
+                        }
+                        else if ((item.Nombre == "OPERADOR" || item.Nombre=="DELIMITADOR"|| item.Nombre == "CADENA"))
+                        {
+                            Error3 = false;
+                            correrEnAsignacionDeVar++;
+                            CorrimientoTkMetodo++;
+                            CorriminetoNuevosTokens++;
                         }
                         else
                         {
@@ -1198,6 +1229,7 @@ namespace Proyecto_Compis
                     var Error2 = true;
                     var existeUnVar2 = true;
                     var ListaIDNoDeclarados2 = new List<string>();
+                    var Concat = false;
                     foreach (var item in lista_tks)
                     {
                         if (item.Cadena != ";" && Error2)
@@ -1229,9 +1261,144 @@ namespace Proyecto_Compis
                             {
                                 if (item.Nombre == "OPERADOR" && item.Cadena == "+")
                                 {
-                                    LECTOR_DE_CADENA += item.Cadena;
+                                    Concat = true;
+                                    correrEnAsignacionDeVar++;
+                                    CorrimientoTkMetodo++;
+                                    //CorrimientoTkMetodoFaseAnterior++;
+                                    CorriminetoNuevosTokens++;
                                 }
-                                else if (item.Nombre == "CADENA" && Error2)
+                                else if (Concat)
+                                {
+                                    Concat = false;
+                                    if (item.Nombre == "IDENTIFICADOR")//Como es un ID, voy a ver si existe y luego su valor
+                                    {
+                                        if (ComprobarExistenciaDefinicionVar(item.Cadena, ID_Metodo))
+                                        {
+                                            correrEnAsignacionDeVar++;
+                                            CorrimientoTkMetodo++;
+                                            CorriminetoNuevosTokens++;
+                                            foreach (var item2 in LISTA_DE_AMBITOS)
+                                            {
+                                                var VecAmbito = item2.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: string
+                                                                                                         //var ValorDeVAR = new string[2];
+                                                if (item.Cadena == VecAmbito[1])
+                                                {
+                                                    //TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                                                    var VecAmbitoKey = item2.AMBITO.ElementAt(0).Key.Split(' ');//Var: id Tipo: int
+                                                    var VecAmbitoVal = item2.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                                                    if (VecAmbitoKey[3] == "string\n")
+                                                    {
+                                                        var ultimoIndice = item2.AMBITO.ElementAt(0).Value.Count;
+                                                        var ListaAUXSubAmbito = item2.AMBITO.ElementAt(0).Value.ElementAt(ultimoIndice - 1); //Val: ultimo valor asignado
+                                                        var ValorDeVAR = ListaAUXSubAmbito.Split(' ');
+                                                        item.Cadena = ValorDeVAR[1];
+                                                        LECTOR_DE_CADENA += item.Cadena;
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        LISTA_DE_ERRORES.Add("Error de concatenacion, el ID: " + VecAmbitoKey[1] + ", no es de tipo string" + ", en el metodo: " + ID_Metodo);
+                                                        Error2 = false;
+                                                        break;
+                                                    }
+                                                    //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
+                                                    //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
+                                                }
+                                            }
+                                            //Error2 = false;
+                                        }
+                                        else if (ComprobarExistenciaDefinicionConst(item.Cadena, ID_Metodo))
+                                        {
+                                            correrEnAsignacionDeVar++;
+                                            CorrimientoTkMetodo++;
+                                            CorriminetoNuevosTokens++;
+                                            foreach (var item2 in LISTA_DE_AMBITOS)
+                                            {
+                                                var VecAmbito = item2.AMBITO.ElementAt(0).Key.Split(' ');//VARIABLE: id TIPO: int
+                                                                                                         //var ValorDeVAR = new string[2];
+                                                if (item.Cadena == VecAmbito[1])
+                                                {
+                                                    //TipoDeVar = VecAmbito[3].Substring(0, VecAmbito[3].Length - 1);
+                                                    var VecAmbitoKey = item2.AMBITO.ElementAt(0).Key.Split(' ');//Var: id Tipo: int
+                                                    var VecAmbitoVal = item2.AMBITO.ElementAt(0).Value.ElementAt(0).Split(' ');//Ambito: ID_Metodo
+                                                    if (VecAmbitoKey[3] == "string\n")
+                                                    {
+                                                        var ultimoIndice = item2.AMBITO.ElementAt(0).Value.Count;
+                                                        var ListaAUXSubAmbito = item2.AMBITO.ElementAt(0).Value.ElementAt(ultimoIndice - 1); //Val: ultimo valor asignado
+                                                        var ValorDeVAR = ListaAUXSubAmbito.Split(' ');
+                                                        item.Cadena = ValorDeVAR[1];
+                                                        LECTOR_DE_CADENA += item.Cadena;
+                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        LISTA_DE_ERRORES.Add("Error de concatenacion, el ID: " + VecAmbitoKey[1] + ", no es de tipo string" + ", en el metodo: " + ID_Metodo);
+                                                        Error2=false;
+                                                        break;
+                                                    }
+                                                    //ValorDeVAR = item2.AMBITO.ElementAt().v.Split(0);
+                                                    //var VecAmbitoVal = item.AMBITO.ElementAt(0).Key
+                                                }
+                                            }
+                                            //Error2 = false;
+                                        }
+                                        else
+                                        {
+                                            LISTA_DE_ERRORES.Add("El ID: " + item.Cadena + ", no es de tipo string" + ", en el metodo: " + ID_Metodo);
+                                            Error2 = false;
+                                            correrEnAsignacionDeVar++;
+                                            CorrimientoTkMetodo++;
+                                            CorriminetoNuevosTokens++;
+                                        }
+                                        ////CuantasVariablesMeComi++;
+                                        //correrEnAsignacionDeVar++;
+                                        //CorrimientoTkMetodo++;
+                                        //CorriminetoNuevosTokens++;
+                                        ////CorrimientoTkMetodoFaseAnterior++;
+                                    }
+                                    else if (item.Cadena == ";" && Error2 == false && existeUnVar2 == true)
+                                    {
+                                        //CuantasVariablesMeComi++;
+                                        correrEnAsignacionDeVar++;
+                                        CorrimientoTkMetodo++;
+                                        CorriminetoNuevosTokens++;
+                                        LISTA_DE_ERRORES.Add("Error de asignacion, se esperaba string en: " + IdVariable + ", en el metodo: " + ID_Metodo);
+                                        break;
+                                        //CorrimientoTkMetodoFaseAnterior++;
+                                    }
+                                    else if (item.Cadena == ";" && Error2 == false && existeUnVar2 == false)
+                                    {
+                                        //CuantasVariablesMeComi++;
+                                        correrEnAsignacionDeVar++;
+                                        CorrimientoTkMetodo++;
+                                        CorriminetoNuevosTokens++;
+                                        foreach (var item2 in ListaIDNoDeclarados2)
+                                        {
+                                            LISTA_DE_ERRORES.Add("El ID: " + item2 + ",no esta declarada");
+                                        }
+                                        break;
+                                        //CorrimientoTkMetodoFaseAnterior++;
+                                    }
+                                    else if (item.Nombre == "CADENA")
+                                    {
+                                        correrEnAsignacionDeVar++;
+                                        CorrimientoTkMetodo++;
+                                        CorriminetoNuevosTokens++;
+                                        LECTOR_DE_CADENA += item.Cadena;
+                                    }
+                                    else
+                                    {
+                                        //error no existe el identificador
+                                        ListaIDNoDeclarados2.Add(item.Cadena);
+                                        existeUnVar = false;
+                                        Error2 = false;
+                                        correrEnAsignacionDeVar++;
+                                        CorrimientoTkMetodo++;
+                                        CorriminetoNuevosTokens++;
+
+                                    }
+                                }
+                                else if (item.Nombre == "CADENA" && Error2&&existeUnVar2==true)
                                 {
                                     LECTOR_DE_CADENA += item.Cadena;
                                     //ListaAUXAmbito.Add("Valor: " + LECTOR_DE_CADENA);
